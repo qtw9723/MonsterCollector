@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import axios from "axios";
 import "./App.css";
 
@@ -43,43 +44,62 @@ function GuessGame() {
   const [attempts, setAttempts] = useState(0);
   const [rates, setRates] = useState({});
 
+  // 🔥 서버 확률 가져오기
   useEffect(() => {
-    axios.get("https://monstercollector-production.up.railway.app/rate")
-      .then(res => setRates(res.data))
-      .catch(err => console.error(err));
+    axios
+      .get("https://monstercollector-production.up.railway.app/rate")
+      .then((res) => setRates(res.data))
+      .catch((err) => console.error("확률 불러오기 실패", err));
   }, [attempts]);
+
+  // 🔥 쿠키로 도감 저장
+  const saveMonsterToCookie = (monster) => {
+    let monsters = Cookies.get("myMonsters");
+    monsters = monsters ? JSON.parse(monsters) : [];
+    monsters.push(monster);
+    Cookies.set("myMonsters", JSON.stringify(monsters), { expires: 7 });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setAttempts(attempts + 1);
 
-    const response = await axios.get(`https://monstercollector-production.up.railway.app/guess?number=${number}`);
-    const result = response.data;
+    try {
+      const res = await axios.get(
+        `https://monstercollector-production.up.railway.app/guess?number=${number}`
+      );
 
-    setMessage(result.message);
+      const result = res.data;
+      setMessage(result.message);
 
-    if (result.message.includes("너무")) {
-      const inputEl = document.querySelector("input[type='number']");
-      inputEl.classList.add("shake");
-      setTimeout(() => inputEl.classList.remove("shake"), 300);
-    }
+      // 🔥 흔들리는 애니메이션
+      if (result.message.includes("너무")) {
+        const inputEl = document.querySelector("input[type='number']");
+        inputEl.classList.add("shake");
+        setTimeout(() => inputEl.classList.remove("shake"), 300);
+      }
 
-    if (result.monster) {
-      const popup = document.createElement("div");
-      popup.className = "popup";
-      popup.innerText = `🎉 ${result.monster.name} (${result.monster.grade}) 획득!`;
-      document.body.appendChild(popup);
-      setTimeout(() => document.body.removeChild(popup), 1500);
+      // 🔥 몬스터 획득 시 쿠키 저장 후 페이지 이동
+      if (result.monster) {
+        saveMonsterToCookie(result.monster);
 
-      await axios.post("https://monstercollector-production.up.railway.app/saveMonster", result.monster);
+        const popup = document.createElement("div");
+        popup.className = "popup";
+        popup.innerText = `🎉 ${result.monster.name} (${result.monster.grade}) 획득!`;
+        document.body.appendChild(popup);
+        setTimeout(() => document.body.removeChild(popup), 1500);
 
-      navigate("/monsters");
+        setTimeout(() => navigate("/monsters"), 1000);
+      }
+    } catch (error) {
+      console.error("오류 발생", error);
     }
   };
 
   return (
     <div style={{ textAlign: "center" }}>
       <h1>숫자 맞추기</h1>
+
       <form onSubmit={handleSubmit}>
         <input
           type="number"
@@ -96,7 +116,7 @@ function GuessGame() {
       <p>시도 횟수: {attempts}</p>
 
       <div>
-        <h3>📊 현재 확률</h3>
+        <h3>📊 현재 확률 (서버 기준)</h3>
         <p>Normal: {rates.NORMAL?.toFixed(1)}%</p>
         <p>Rare: {rates.RARE?.toFixed(1)}%</p>
         <p>Epic: {rates.EPIC?.toFixed(1)}%</p>
@@ -111,9 +131,8 @@ function MonsterBook() {
   const [monsters, setMonsters] = useState([]);
 
   useEffect(() => {
-    axios.get("https://monstercollector-production.up.railway.app/myMonsters")
-      .then(res => setMonsters(res.data))
-      .catch(err => console.error("도감 불러오기 실패", err));
+    let saved = Cookies.get("myMonsters");
+    setMonsters(saved ? JSON.parse(saved) : []);
   }, []);
 
   return (
@@ -125,9 +144,11 @@ function MonsterBook() {
       ) : (
         <div className="monster-grid">
           {monsters.map((m, idx) => (
-            <div 
-              key={idx} 
-              className={`monster-card fade-in ${m.grade === "LEGENDARY" ? "legendary-glow" : ""}`}
+            <div
+              key={idx}
+              className={`monster-card fade-in ${
+                m.grade === "LEGENDARY" ? "legendary-glow" : ""
+              }`}
             >
               <h3 className={`grade-${m.grade}`}>{m.name}</h3>
               <p>등급: <span className={`grade-${m.grade}`}>{m.grade}</span></p>
