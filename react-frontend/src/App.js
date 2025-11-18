@@ -44,7 +44,7 @@ function GuessGame() {
   const [rates, setRates] = useState({});
 
   useEffect(() => {
-    axios.get("https://monstercollector-production.up.railway.app:8080/rate")
+    axios.get("https://monstercollector-production.up.railway.app/rate")
       .then(res => setRates(res.data))
       .catch(err => console.error(err));
   }, [attempts]);
@@ -53,7 +53,7 @@ function GuessGame() {
     e.preventDefault();
     setAttempts(attempts + 1);
 
-    const response = await axios.get(`https://monstercollector-production.up.railway.app:8080/guess?number=${number}`);
+    const response = await axios.get(`https://monstercollector-production.up.railway.app/guess?number=${number}`);
     const result = response.data;
 
     setMessage(result.message);
@@ -71,7 +71,7 @@ function GuessGame() {
       document.body.appendChild(popup);
       setTimeout(() => document.body.removeChild(popup), 1500);
 
-      await axios.post("https://monstercollector-production.up.railway.app:8080/saveMonster", result.monster);
+      await axios.post("https://monstercollector-production.up.railway.app/saveMonster", result.monster);
 
       navigate("/monsters");
     }
@@ -111,7 +111,7 @@ function MonsterBook() {
   const [monsters, setMonsters] = useState([]);
 
   useEffect(() => {
-    axios.get("https://monstercollector-production.up.railway.app:8080/myMonsters")
+    axios.get("https://monstercollector-production.up.railway.app/myMonsters")
       .then(res => setMonsters(res.data))
       .catch(err => console.error("도감 불러오기 실패", err));
   }, []);
