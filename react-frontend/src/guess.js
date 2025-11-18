@@ -13,7 +13,7 @@ function GuessGame() {
     e.preventDefault();
     setAttempts(attempts + 1);
     
-    const response = await fetch(`https://localhost:8080/guess?number=${number}`);
+    const response = await fetch(`https://monstercollector-production.up.railway.app/guess?number=${number}`);
     const result = await response.text();
     
     setMessage(result);

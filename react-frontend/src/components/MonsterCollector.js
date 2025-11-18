@@ -20,12 +20,12 @@ function MonsterCollector({ onCollect }) {
   }, []);
 
   const loadProbabilities = async () => {
-    const res = await axios.get("http://monstercollector-production.up.railway.app:8080/api/monster/probabilities");
+    const res = await axios.get("https://monstercollector-production.up.railway.app/api/monster/probabilities");
     setProbabilities(res.data);
   };
 
   const handleSubmit = async () => {
-    const res = await axios.post("http://monstercollector-production.up.railway.app:8080/api/monster/guess", {
+    const res = await axios.post("https://monstercollector-production.up.railway.app/api/monster/guess", {
       answer: input,
     });
 
