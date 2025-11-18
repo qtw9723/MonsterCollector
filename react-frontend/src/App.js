@@ -168,7 +168,21 @@ function MonsterBook() {
     setMonsters(list);
   }, []);
 
-  // 등급 우선순위 지정
+  // 이미지 매핑
+  const monsterImages = {
+    "슬라임": "/monsters/slime.png",
+    "고블린": "/monsters/goblin.png",
+    "박쥐": "/monsters/bat.png",
+    "스켈레톤": "/monsters/skeleton.png",
+    "늑대": "/monsters/wolf.png",
+    "미믹": "/monsters/mimic.png",
+    "리치": "/monsters/lich.png",
+    "드래곤": "/monsters/dragon.png",
+  };
+
+  const defaultMonsterImage = "/monsters/default.png";
+
+  // 등급 정렬 우선순위
   const gradeOrder = { LEGENDARY: 4, EPIC: 3, RARE: 2, NORMAL: 1 };
 
   const sortMonsters = (list) => {
@@ -181,7 +195,7 @@ function MonsterBook() {
         return [...list].sort((a, b) => b.power - a.power);
       case "recent":
       default:
-        return [...list]; // 저장된 순서가 최신순
+        return [...list];
     }
   };
 
@@ -191,7 +205,7 @@ function MonsterBook() {
     <div>
       <h1>📖 내 몬스터 도감</h1>
 
-      {/* 정렬 선택 UI */}
+      {/* 정렬 선택 */}
       <div style={{ marginBottom: "20px" }}>
         <label style={{ marginRight: "10px" }}>정렬 :</label>
         <select value={sortType} onChange={(e) => setSortType(e.target.value)}>
@@ -210,6 +224,12 @@ function MonsterBook() {
               key={idx}
               className={`monster-card fade-in ${m.grade === "LEGENDARY" ? "legendary-glow" : ""}`}
             >
+              <img
+                src={monsterImages[m.name] || defaultMonsterImage}
+                alt={m.name}
+                style={{ width: "100px", height: "100px", marginBottom: "10px" }}
+              />
+
               <h3 className={`grade-${m.grade}`}>{m.name}</h3>
               <p>등급: <span className={`grade-${m.grade}`}>{m.grade}</span></p>
               <p>공격력: {m.power}</p>

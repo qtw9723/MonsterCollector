@@ -126,3 +126,23 @@ input[type="number"] {
   color: #fff;
   margin-right: 10px;
 }
+
+.monster-card {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  transition: 0.2s;
+  background: #fefefe;
+}
+
+.monster-card:hover {
+  transform: scale(1.05);
+}
+
+.monster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+}
+
