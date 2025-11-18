@@ -57,7 +57,7 @@ function GuessGame() {
     let monsters = Cookies.get("myMonsters");
     monsters = monsters ? JSON.parse(monsters) : [];
     monsters.push(monster);
-    Cookies.set("myMonsters", JSON.stringify(monsters), { expires: 7 });
+    Cookies.set("myMonsters", JSON.stringify(monsters), { expires: 7, path: "/"  });
   };
 
   const handleSubmit = async (e) => {
