@@ -15,7 +15,8 @@ public class WebConfig implements WebMvcConfigurer {
 					"http://192.168.2.50:8082",
 					"exp://192.168.2.50:8081",
 					"http://localhost:3000",
-					"http://localhost:8081"
+					"http://localhost:8081",
+					"https://monster-collector.vercel.app/"
 					)
 			.allowedMethods("GET", "POST", "PUT", "DELETE")
 			.allowCredentials(true);
