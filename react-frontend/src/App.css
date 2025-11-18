@@ -69,29 +69,32 @@ nav ul li a:hover {
   margin-top: 20px;
 }
 
+/* 몬스터 카드 등급별 테두리 */
 .monster-card {
   padding: 15px;
   background: #232323;
   border-radius: 10px;
   text-align: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border 0.25s ease;
+  border: 2px solid transparent; /* 기본은 투명 */
 }
+
+.monster-card.grade-NORMAL { border-color: #ffffff; }     /* 흰색 */
+.monster-card.grade-RARE { border-color: #4fa3ff; }       /* 파랑 */
+.monster-card.grade-EPIC { border-color: #b14fff; }       /* 보라 */
+.monster-card.grade-LEGENDARY { border-color: #ffcc00; }  /* 노랑 */
+
 .monster-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 5px 14px rgba(0,0,0,0.5);
 }
 
+
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
-
-/* 등급 색상 */
-.grade-NORMAL { color: #ffffff; text-shadow: 0 0 2px #999; }
-.grade-RARE { color: #4fa3ff; }
-.grade-EPIC { color: #b14fff; }
-.grade-LEGENDARY { color: #ffcc00; }
 
 /* 전설 등급 glow */
 .legendary-glow {
@@ -125,24 +128,5 @@ input[type="number"] {
   background: #2a2a2a;
   color: #fff;
   margin-right: 10px;
-}
-
-.monster-card {
-  border: 1px solid #ccc;
-  padding: 15px;
-  border-radius: 12px;
-  text-align: center;
-  transition: 0.2s;
-  background: #fefefe;
-}
-
-.monster-card:hover {
-  transform: scale(1.05);
-}
-
-.monster-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 16px;
 }
 
