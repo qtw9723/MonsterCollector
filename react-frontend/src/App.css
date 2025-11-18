@@ -96,6 +96,12 @@ nav ul li a:hover {
   to { opacity: 1; transform: scale(1); }
 }
 
+/* 등급 색상 */
+.grade-NORMAL { color: #ffffff; text-shadow: 0 0 2px #999; }
+.grade-RARE { color: #4fa3ff; }
+.grade-EPIC { color: #b14fff; }
+.grade-LEGENDARY { color: #ffcc00; }
+
 /* 전설 등급 glow */
 .legendary-glow {
   box-shadow: 0 0 10px #ffcc00;

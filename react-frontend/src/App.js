@@ -220,10 +220,10 @@ function MonsterBook() {
       ) : (
         <div className="monster-grid">
           {sortedList.map((m, idx) => (
-            <div
-              key={idx}
-              className={`monster-card fade-in ${m.grade === "LEGENDARY" ? "legendary-glow" : ""}`}
-            >
+           <div
+           key={idx}
+           className={`monster-card fade-in grade-${m.grade} ${m.grade === "LEGENDARY" ? "legendary-glow" : ""}`}
+         >
               <img
                 src={monsterImages[m.name] || defaultMonsterImage}
                 alt={m.name}
