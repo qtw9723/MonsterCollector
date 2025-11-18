@@ -1,0 +1,128 @@
+body {
+  background: #181818;
+  color: #ececec;
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  padding: 10px 20px;
+  background: #181818;
+}
+
+nav ul li a {
+  color: #aaa;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+nav ul li a:hover {
+  color: #fff;
+}
+
+
+/* 입력 shake 애니메이션 */
+.shake {
+  animation: shake 0.2s;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0px); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0px); }
+}
+
+/* 팝업 */
+.popup {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 20px;
+  z-index: 999;
+  animation: fadeInOut 1.5s ease-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -10px); }
+  20% { opacity: 1; transform: translate(-50%, 0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -10px); }
+}
+
+/* 몬스터 카드 */
+.monster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.monster-card {
+  padding: 15px;
+  background: #232323;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.monster-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 14px rgba(0,0,0,0.5);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* 등급 색상 */
+.grade-NORMAL { color: #ffffff; text-shadow: 0 0 2px #999; }
+.grade-RARE { color: #4fa3ff; }
+.grade-EPIC { color: #b14fff; }
+.grade-LEGENDARY { color: #ffcc00; }
+
+/* 전설 등급 glow */
+.legendary-glow {
+  box-shadow: 0 0 10px #ffcc00;
+}
+
+
+.container {
+  padding: 30px;
+}
+
+button {
+  padding: 10px 20px;
+  background: #444;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.25s;
+}
+button:hover {
+  background: #666;
+}
+
+input[type="number"] {
+  padding: 10px;
+  width: 150px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #2a2a2a;
+  color: #fff;
+  margin-right: 10px;
+}
