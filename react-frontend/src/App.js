@@ -294,23 +294,62 @@ function MonsterBook() {
 
 function MaterialsPage() {
   const [materials, setMaterials] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const monsterImages = {
+    "슬라임": "/monsters/slime.png",
+    "고블린": "/monsters/goblin.png",
+    "박쥐": "/monsters/bat.png",
+    "스켈레톤": "/monsters/skeleton.png",
+    "늑대": "/monsters/wolf.png",
+    "미믹": "/monsters/mimic.png",
+    "리치": "/monsters/lich.png",
+    "드래곤": "/monsters/dragon.png",
+  };
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("materials") || "{}");
     setMaterials(saved);
   }, []);
 
-  const handleUseMaterial = (materialName) => {
-    if (!materials[materialName] || materials[materialName] <= 0) return;
+  const handleUseMaterial = async (materialName) => {
+    if (!materials[materialName] || materials[materialName] < 10) {
+      alert("재료가 10개 이상 필요합니다!");
+      return;
+    }
 
-    // 재료 사용
-    const newMaterials = { ...materials };
-    newMaterials[materialName] -= 1;
-    setMaterials(newMaterials);
-    localStorage.setItem("materials", JSON.stringify(newMaterials));
+    setLoading(true);
+    const gradeMap = {
+      "NORMAL 재료": "NORMAL",
+      "RARE 재료": "RARE",
+      "EPIC 재료": "EPIC",
+      "LEGENDARY 재료": "LEGENDARY"
+    };
+    const materialGrade = gradeMap[materialName];
 
-    // 효과 적용 (예: 다음 게임에서 Legendary 확률 +1%)
-    alert(`${materialName} 1개 사용!`);
+    try {
+      // 백엔드 호출
+      const res = await axios.get(`http://localhost:8080/material/spawn?materialGrade=${materialGrade}`);
+      const newMonster = res.data;
+
+      // 몬스터 저장
+      const savedMonsters = JSON.parse(localStorage.getItem("myMonsters") || "[]");
+      savedMonsters.push({ ...newMonster, id: Date.now() });
+      localStorage.setItem("myMonsters", JSON.stringify(savedMonsters));
+
+      // 재료 차감
+      const newMaterials = { ...materials };
+      newMaterials[materialName] -= 10;
+      setMaterials(newMaterials);
+      localStorage.setItem("materials", JSON.stringify(newMaterials));
+
+      alert(`${newMonster.grade} 등급 몬스터 ${newMonster.name} 획득!`);
+    } catch (err) {
+      console.error(err);
+      alert("몬스터 소환 실패");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -322,8 +361,10 @@ function MaterialsPage() {
         <ul>
           {Object.entries(materials).map(([name, qty]) => (
             <li key={name}>
-              {name}: {qty}
-              <button onClick={() => handleUseMaterial(name)}>사용</button>
+              {name}: {qty} 
+              <button disabled={loading} onClick={() => handleUseMaterial(name)}>
+                재료 사용 (10개)
+              </button>
             </li>
           ))}
         </ul>
@@ -331,5 +372,6 @@ function MaterialsPage() {
     </div>
   );
 }
+
 
 export default App;
