@@ -29,13 +29,37 @@ function App() {
 /* 홈 화면 */
 /* ---------------------------------------------------------------- */
 function Home() {
+  const navigate = useNavigate();
+
   return (
-    <div style={{ textAlign: "center" }}>
+    <div style={{ textAlign: "center", maxWidth: "600px", margin: "0 auto" }}>
       <h1>🎮 몬스터 뽑기 게임</h1>
-      <p>숫자를 맞추고 몬스터를 모아보세요!</p>
+
+      <p style={{ fontSize: "18px", lineHeight: "1.5" }}>
+        숫자를 맞추면 몬스터를 획득하는 간단한 미니게임입니다!  
+        반복해서 도전할수록 높은 등급 몬스터 등장 확률이 올라갑니다.
+      </p>
+
+      <h3>📘 게임 방법</h3>
+      <ul style={{ textAlign: "left", fontSize: "16px", lineHeight: "1.6" }}>
+        <li>1~100 사이의 숫자를 추측합니다.</li>
+        <li>너무 높거나 낮다는 힌트를 봐가며 맞춥니다.</li>
+        <li>정답을 맞추면 몬스터를 1마리 획득합니다!</li>
+        <li>시도 횟수가 많아질수록 높은 등급 등장 확률 상승!</li>
+      </ul>
+
+      <h3>⭐ 몬스터 등급</h3>
+      <p>NORMAL → RARE → EPIC → LEGENDARY 순으로 희귀도가 증가합니다.</p>
+
+      <button 
+        onClick={() => navigate("/game")}
+        style={{ padding: "10px 20px", marginTop: "20px", fontSize: "18px" }}
+      >
+        ▶ 게임 시작하기
+      </button>
     </div>
   );
-}
+}//Home
 
 /* ---------------------------------------------------------------- */
 /* 숫자 맞추기 게임 */
@@ -129,28 +153,59 @@ function GuessGame() {
       </div>
     </div>
   );
-}
+}//GuessGame
 
 /* ---------------------------------------------------------------- */
 /* 몬스터 도감 (localStorage 기반) */
 /* ---------------------------------------------------------------- */
 function MonsterBook() {
   const [monsters, setMonsters] = useState([]);
+  const [sortType, setSortType] = useState("recent");
 
   useEffect(() => {
     const saved = localStorage.getItem("myMonsters");
-    setMonsters(saved ? JSON.parse(saved) : []);
+    const list = saved ? JSON.parse(saved) : [];
+    setMonsters(list);
   }, []);
+
+  // 등급 우선순위 지정
+  const gradeOrder = { LEGENDARY: 4, EPIC: 3, RARE: 2, NORMAL: 1 };
+
+  const sortMonsters = (list) => {
+    switch (sortType) {
+      case "grade":
+        return [...list].sort(
+          (a, b) => gradeOrder[b.grade] - gradeOrder[a.grade]
+        );
+      case "power":
+        return [...list].sort((a, b) => b.power - a.power);
+      case "recent":
+      default:
+        return [...list]; // 저장된 순서가 최신순
+    }
+  };
+
+  const sortedList = sortMonsters(monsters);
 
   return (
     <div>
       <h1>📖 내 몬스터 도감</h1>
 
-      {monsters.length === 0 ? (
+      {/* 정렬 선택 UI */}
+      <div style={{ marginBottom: "20px" }}>
+        <label style={{ marginRight: "10px" }}>정렬 :</label>
+        <select value={sortType} onChange={(e) => setSortType(e.target.value)}>
+          <option value="recent">📅 최신순</option>
+          <option value="grade">⭐ 등급순</option>
+          <option value="power">💥 공격력 높은순</option>
+        </select>
+      </div>
+
+      {sortedList.length === 0 ? (
         <p>아직 몬스터가 없습니다.</p>
       ) : (
         <div className="monster-grid">
-          {monsters.map((m, idx) => (
+          {sortedList.map((m, idx) => (
             <div
               key={idx}
               className={`monster-card fade-in ${m.grade === "LEGENDARY" ? "legendary-glow" : ""}`}
@@ -164,6 +219,7 @@ function MonsterBook() {
       )}
     </div>
   );
-}
+}//MonsterBook
+
 
 export default App;
