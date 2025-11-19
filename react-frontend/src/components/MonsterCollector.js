@@ -12,7 +12,6 @@ const GRADE_COLORS = {
 
 function MonsterCollector({ onCollect }) {
   const [probabilities, setProbabilities] = useState(null);
-  const [answer, setAnswer] = useState("");
   const [input, setInput] = useState("");
 
   useEffect(() => {
