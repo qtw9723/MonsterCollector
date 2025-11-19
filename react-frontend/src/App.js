@@ -297,16 +297,35 @@ function MonsterBook() {
   );
 } //MonsterBook
 
+const MATERIAL_GRADES = ["COMMON", "RARE", "EPIC", "LEGEND"];
+
+const MATERIAL_IMAGES = {
+  COMMON: "/img/material_common.png",
+  RARE: "/img/material_rare.png",
+  EPIC: "/img/material_epic.png",
+  LEGEND: "/img/material_legend.png",
+};
+
+
 function MaterialsPage() {
   const [materials, setMaterials] = useState({});
   const [loading, setLoading] = useState(false);
 
+  // 항상 등급별 재료를 표시
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("materials") || "{}");
-    setMaterials(saved);
+
+    const fullList = {};
+    MATERIAL_GRADES.forEach((grade) => {
+      fullList[`${grade} 재료`] = saved[`${grade} 재료`] || 0;
+    });
+
+    setMaterials(fullList);
   }, []);
 
   const handleUseMaterial = async (materialName) => {
+    if (loading) return;
+
     if (!materials[materialName] || materials[materialName] < 10) {
       alert("재료가 10개 이상 필요합니다!");
       return;
@@ -314,7 +333,6 @@ function MaterialsPage() {
 
     setLoading(true);
 
-    // materialName은 "EPIC 재료" 같은 형태
     const materialGrade = materialName.replace(" 재료", "");
 
     try {
@@ -330,11 +348,13 @@ function MaterialsPage() {
       localStorage.setItem("myMonsters", JSON.stringify(savedMonsters));
 
       // 재료 차감
-      const newMaterials = { ...materials };
-      newMaterials[materialName] -= 10;
+      const updated = {
+        ...materials,
+        [materialName]: materials[materialName] - 10,
+      };
 
-      setMaterials(newMaterials);
-      localStorage.setItem("materials", JSON.stringify(newMaterials));
+      setMaterials(updated);
+      localStorage.setItem("materials", JSON.stringify(updated));
 
       alert(`${newMonster.grade} 등급 몬스터 ${newMonster.name} 획득!`);
     } catch (err) {
@@ -346,26 +366,74 @@ function MaterialsPage() {
   };
 
   return (
-    <div>
-      <h1>재료 목록</h1>
-      {Object.keys(materials).length === 0 ? (
-        <p>재료가 없습니다.</p>
-      ) : (
-        <ul>
-          {Object.entries(materials).map(([name, qty]) => (
-            <li key={name}>
-              {name}: {qty}
-              <button disabled={loading} onClick={() => handleUseMaterial(name)}>
-                재료 사용 (10개)
+    <div style={{ padding: "20px" }}>
+      <h1>재료 사용</h1>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+          gap: "15px",
+          marginTop: "20px",
+        }}
+      >
+        {Object.entries(materials).map(([name, qty]) => {
+          const grade = name.replace(" 재료", "");
+          const img = MATERIAL_IMAGES[grade];
+
+          return (
+            <div
+              key={name}
+              style={{
+                background: "#2b2b2b",
+                color: "white",
+                padding: "15px",
+                borderRadius: "12px",
+                textAlign: "center",
+                boxShadow: "0 4px 8px rgba(0,0,0,0.25)",
+              }}
+            >
+              {/* 이미지 */}
+              <img
+                src={img}
+                alt={name}
+                style={{
+                  width: "70px",
+                  height: "70px",
+                  objectFit: "contain",
+                  marginBottom: "10px",
+                }}
+              />
+
+              {/* 이름 */}
+              <div style={{ fontSize: "16px", fontWeight: "bold" }}>{name}</div>
+
+              {/* 개수 */}
+              <div style={{ margin: "8px 0 12px 0" }}>{qty}개</div>
+
+              {/* 버튼 */}
+              <button
+                disabled={loading || qty < 10}
+                onClick={() => handleUseMaterial(name)}
+                style={{
+                 padding: "8px 14px",
+                  borderRadius: "8px",
+                  border: "none",
+                  cursor: qty < 10 ? "not-allowed" : "pointer",
+                  background: qty < 10 ? "#555" : "#4caf50",
+                  color: "white",
+                  fontSize: "14px",
+                }}
+              >
+                재료 10개로 소환
               </button>
-            </li>
-          ))}
-        </ul>
-      )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
-
 
 
 export default App;
