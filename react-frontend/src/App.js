@@ -24,6 +24,21 @@ function App() {
     localStorage.setItem("gold", gold);
   }, [gold]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // localStorage에서 던전 배치 불러오기
+      const dungeon = JSON.parse(localStorage.getItem("dungeonMonsters") || "[]");
+      if (dungeon.length === 0) return;
+  
+      const totalPower = dungeon.reduce((sum, m) => sum + m.power, 0);
+      const collected = Math.floor(totalPower * (0.8 + Math.random() * 0.4));
+  
+      setGold(prev => prev + collected);
+    }, 5000);
+  
+    return () => clearInterval(interval);
+  }, [setGold]);
+
   return (
     <Router>
       <NavBar gold={gold} />
