@@ -297,10 +297,10 @@ function MonsterBook() {
   );
 } //MonsterBook
 
-const MATERIAL_GRADES = ["COMMON", "RARE", "EPIC", "LEGEND"];
+const MATERIAL_GRADES = ["NORMAL", "RARE", "EPIC", "LEGEND"];
 
 const MATERIAL_IMAGES = {
-  COMMON: "/materials/material_common.png",
+  NORMAL: "/materials/material_normal.png",
   RARE: "/materials/material_rare.png",
   EPIC: "/materials/material_epic.png",
   LEGEND: "/materials/material_legend.png",
