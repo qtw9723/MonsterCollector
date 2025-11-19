@@ -10,24 +10,20 @@ import axios from "axios";
 import "./App.css";
 
 function App() {
+  const [gold, setGold] = useState(() => {
+    // localStorage에서 초기값 불러오기, 없으면 0
+    const saved = localStorage.getItem("gold");
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
+  // gold가 바뀔 때 localStorage에 저장
+  useEffect(() => {
+    localStorage.setItem("gold", gold);
+  }, [gold]);
+
   return (
     <Router>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">홈</Link>
-          </li>
-          <li>
-            <Link to="/game">숫자 맞추기</Link>
-          </li>
-          <li>
-            <Link to="/monsters">내 몬스터</Link>
-          </li>
-          <li>
-            <Link to="/materials">재료사용</Link>
-          </li>
-        </ul>
-      </nav>
+      <NavBar gold={gold} />
 
       <div className="container">
         <Routes>
@@ -35,11 +31,123 @@ function App() {
           <Route path="/game" element={<GuessGame />} />
           <Route path="/monsters" element={<MonsterBook />} />
           <Route path="/materials" element={<MaterialsPage />} />
+          <Route path="/DungeonPage" element={<DungeonPage gold={gold} setGold={setGold} />} />
         </Routes>
       </div>
     </Router>
   );
 }
+/* ---------------------------------------------------------------- */
+/* 네비 */
+/* ---------------------------------------------------------------- */
+function NavBar({ gold }) {
+  return (
+    <nav style={{ display: "flex", justifyContent: "space-between", padding: "10px 20px", background: "#1c1c1c", color: "white" }}>
+      <ul style={{ display: "flex", gap: "15px", listStyle: "none", margin: 0, padding: 0 }}>
+        <li><Link to="/" style={{ color: "white", textDecoration: "none" }}>홈</Link></li>
+        <li><Link to="/game" style={{ color: "white", textDecoration: "none" }}>숫자 맞추기</Link></li>
+        <li><Link to="/monsters" style={{ color: "white", textDecoration: "none" }}>내 몬스터</Link></li>
+        <li><Link to="/materials" style={{ color: "white", textDecoration: "none" }}>재료사용</Link></li>
+        <li><Link to="/DungeonPage" style={{ color: "white", textDecoration: "none" }}>던전</Link></li>
+      </ul>
+      <div>💰 골드: {gold}</div>
+    </nav>
+  );
+}
+
+
+/* ---------------------------------------------------------------- */
+/* 던전 화면 */
+/* ---------------------------------------------------------------- */
+function DungeonPage({ gold, setGold }) {
+  const [myMonsters, setMyMonsters] = useState([]);
+  const [dungeonMonsters, setDungeonMonsters] = useState([]); // 최대 5
+  const MAX_DUNGEON = 5;
+
+  // 내 몬스터 불러오기
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("myMonsters") || "[]");
+    setMyMonsters(saved);
+  }, []);
+
+  // 일정 시간마다 골드 수집
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (dungeonMonsters.length === 0) return;
+
+      // 총 공격력 합
+      const totalPower = dungeonMonsters.reduce((sum, m) => sum + m.power, 0);
+
+      // 수집 골드 = 공격력 * 랜덤 계수 (0.8~1.2)
+      const collected = Math.floor(totalPower * (0.8 + Math.random() * 0.4));
+
+      setGold(prev => prev + collected);
+    }, 5000); // 5초마다 수집
+
+    return () => clearInterval(interval);
+  }, [dungeonMonsters, setGold]);
+
+  const toggleDungeonMonster = (monster) => {
+    const exists = dungeonMonsters.find(m => m.id === monster.id);
+
+    if (exists) {
+      // 제거
+      setDungeonMonsters(dungeonMonsters.filter(m => m.id !== monster.id));
+    } else {
+      if (dungeonMonsters.length >= MAX_DUNGEON) {
+        alert("던전에 배치할 수 있는 몬스터는 최대 5마리입니다!");
+        return;
+      }
+      setDungeonMonsters([...dungeonMonsters, monster]);
+    }
+  };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>던전</h1>
+      
+      <h3>던전 배치 (최대 5마리)</h3>
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "30px" }}>
+        {dungeonMonsters.length === 0 && <div>배치된 몬스터가 없습니다.</div>}
+        {dungeonMonsters.map(m => (
+          <div key={m.id} style={{ background: "#2b2b2b", padding: "10px", borderRadius: "8px", color: "white", textAlign: "center" }}>
+            <div>{m.name}</div>
+            <div>⭐ {m.grade}</div>
+            <div>💥 {m.power}</div>
+          </div>
+        ))}
+      </div>
+
+      <h3>내 몬스터 선택</h3>
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+        {myMonsters.map(m => {
+          const selected = dungeonMonsters.find(dm => dm.id === m.id);
+          return (
+            <div
+              key={m.id}
+              onClick={() => toggleDungeonMonster(m)}
+              style={{
+                background: selected ? "#4caf50" : "#2b2b2b",
+                padding: "10px",
+                borderRadius: "8px",
+                color: "white",
+                textAlign: "center",
+                cursor: "pointer",
+                width: "100px"
+              }}
+            >
+              <div>{m.name}</div>
+              <div>⭐ {m.grade}</div>
+              <div>💥 {m.power}</div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  );
+}
+
+
 
 /* ---------------------------------------------------------------- */
 /* 홈 화면 */
