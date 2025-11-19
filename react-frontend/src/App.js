@@ -6,7 +6,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import axios from "axios";
-import "./App.css";
+import "./style/App.css";
 import NavBar from "./components/NavBar";
 import MonsterBook from "./components/MonsterBook";
 import MaterialsPage from "./components/MaterialsPage";
