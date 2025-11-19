@@ -9,7 +9,7 @@ import axios from "axios";
 import "./style/App.css";
 import NavBar from "./components/NavBar";
 import MonsterBook from "./components/MonsterBook";
-import MaterialsPage from "./components/MaterialsPage";
+import MaterialsPage from "./components/MaterialPage";
 import DungeonPage from "./components/DungeonPage";
 
 function App() {
