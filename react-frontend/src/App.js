@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import axios from "axios";
 import "./App.css";
+import { MONSTER_IMAGES, DEFAULT_MONSTER_IMAGE } from "../constants/monsterImages";
 
 function App() {
   const [gold, setGold] = useState(() => {
@@ -103,47 +104,73 @@ function DungeonPage({ gold, setGold }) {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>던전</h1>
-      
-      <h3>던전 배치 (최대 5마리)</h3>
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "30px" }}>
-        {dungeonMonsters.length === 0 && <div>배치된 몬스터가 없습니다.</div>}
-        {dungeonMonsters.map(m => (
-          <div key={m.id} style={{ background: "#2b2b2b", padding: "10px", borderRadius: "8px", color: "white", textAlign: "center" }}>
-            <div>{m.name}</div>
-            <div>⭐ {m.grade}</div>
-            <div>💥 {m.power}</div>
-          </div>
-        ))}
-      </div>
+<div style={{ padding: "20px" }}>
+  <h1>던전</h1>
 
-      <h3>내 몬스터 선택</h3>
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-        {myMonsters.map(m => {
-          const selected = dungeonMonsters.find(dm => dm.id === m.id);
-          return (
-            <div
-              key={m.id}
-              onClick={() => toggleDungeonMonster(m)}
-              style={{
-                background: selected ? "#4caf50" : "#2b2b2b",
-                padding: "10px",
-                borderRadius: "8px",
-                color: "white",
-                textAlign: "center",
-                cursor: "pointer",
-                width: "100px"
-              }}
-            >
-              <div>{m.name}</div>
-              <div>⭐ {m.grade}</div>
-              <div>💥 {m.power}</div>
-            </div>
-          )
-        })}
-      </div>
+  <h3>던전 배치 (최대 5마리)</h3>
+  {dungeonMonsters.length === 0 ? (
+    <p>배치된 몬스터가 없습니다.</p>
+  ) : (
+    <div className="monster-grid">
+      {dungeonMonsters.map((m) => (
+        <div
+          key={m.id}
+          className={`monster-card fade-in grade-${m.grade} ${
+            m.grade === "LEGENDARY" ? "legendary-glow" : ""
+          }`}
+          style={{ cursor: "default", opacity: 0.9 }}
+        >
+          <img
+            src={MONSTER_IMAGES[m.name] || DEFAULT_MONSTER_IMAGE}
+            alt={m.name}
+            style={{ width: "100px", height: "100px", marginBottom: "10px" }}
+          />
+          <h3 className={`grade-${m.grade}`}>{m.name}</h3>
+          <p>
+            등급: <span className={`grade-${m.grade}`}>{m.grade}</span>
+          </p>
+          <p>💥 {m.power}</p>
+        </div>
+      ))}
     </div>
+  )}
+
+  <h3>내 몬스터 선택</h3>
+  {myMonsters.length === 0 ? (
+    <p>몬스터가 없습니다.</p>
+  ) : (
+    <div className="monster-grid">
+      {myMonsters.map((m) => {
+        const selected = dungeonMonsters.find((dm) => dm.id === m.id);
+        return (
+          <div
+            key={m.id}
+            className={`monster-card fade-in grade-${m.grade} ${
+              m.grade === "LEGENDARY" ? "legendary-glow" : ""
+            }`}
+            style={{
+              background: selected ? "#4caf50" : "#2b2b2b",
+              cursor: "pointer",
+            }}
+            onClick={() => toggleDungeonMonster(m)}
+          >
+            <img
+              src={MONSTER_IMAGES[m.name] || DEFAULT_MONSTER_IMAGE}
+              alt={m.name}
+              style={{ width: "100px", height: "100px", marginBottom: "10px" }}
+            />
+            <h3 className={`grade-${m.grade}`}>{m.name}</h3>
+            <p>
+              등급: <span className={`grade-${m.grade}`}>{m.grade}</span>
+            </p>
+            <p>💥 {m.power}</p>
+          </div>
+        );
+      })}
+    </div>
+  )}
+</div>
+
   );
 }
 
@@ -295,19 +322,6 @@ function MonsterBook() {
     setMonsters(list);
   }, []);
 
-  // 이미지 매핑
-  const monsterImages = {
-    슬라임: "/monsters/slime.png",
-    고블린: "/monsters/goblin.png",
-    박쥐: "/monsters/bat.png",
-    스켈레톤: "/monsters/skeleton.png",
-    늑대: "/monsters/wolf.png",
-    미믹: "/monsters/mimic.png",
-    리치: "/monsters/lich.png",
-    드래곤: "/monsters/dragon.png",
-  };
-
-  const defaultMonsterImage = "/monsters/default.png";
 
   // 등급 정렬 우선순위
   const gradeOrder = { LEGENDARY: 4, EPIC: 3, RARE: 2, NORMAL: 1 };
@@ -385,7 +399,7 @@ function MonsterBook() {
               }`}
             >
               <img
-                src={monsterImages[m.name] || defaultMonsterImage}
+                src={MONSTER_IMAGES[m.name] || DEFAULT_MONSTER_IMAGE}
                 alt={m.name}
                 style={{
                   width: "100px",
