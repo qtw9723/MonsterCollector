@@ -212,11 +212,14 @@ function MonsterBook() {
         );
       case "power":
         return [...list].sort((a, b) => b.power - a.power);
+  
       case "recent":
       default:
-        return [...list];
+        // 최신순 → id(시간) 내림차순
+        return [...list].sort((a, b) => b.id - a.id);
     }
   };
+  
 
   const sortedList = sortMonsters(monsters);
 
@@ -297,13 +300,13 @@ function MonsterBook() {
   );
 } //MonsterBook
 
-const MATERIAL_GRADES = ["NORMAL", "RARE", "EPIC", "LEGEND"];
+const MATERIAL_GRADES = ["NORMAL", "RARE", "EPIC", "LEGENDARY"];
 
 const MATERIAL_IMAGES = {
   NORMAL: "/materials/material_normal.png",
   RARE: "/materials/material_rare.png",
   EPIC: "/materials/material_epic.png",
-  LEGEND: "/materials/material_legend.png",
+  LEGENDARY: "/materials/material_legend.png",
 };
 
 function MaterialsPage() {
