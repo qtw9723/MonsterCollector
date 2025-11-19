@@ -1,5 +1,4 @@
 import {
-    BrowserRouter as
     Link
   } from "react-router-dom";
 /* ---------------------------------------------------------------- */
