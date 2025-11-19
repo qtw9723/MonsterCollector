@@ -166,7 +166,7 @@ public class GuessNumber {
 
     /* ------------------------ 현재 확률 조회 ------------------------ */
     @GetMapping("/rate")
-    public Map<MonsterGrade, Double> getCurrentRate() {
+    public Map<MonsterGrade, Double> getCurrentRate(@RequestParam(value="tryCount", defaultValue="0") int tryCount) {
         return getDynamicRate(tryCount);
     }
 
