@@ -221,27 +221,32 @@ function MonsterBook() {
   const sortedList = sortMonsters(monsters);
 
   const disassembleMonster = (monsterId) => {
-    // 몬스터 목록 가져오기
     let monsters = JSON.parse(localStorage.getItem("myMonsters") || "[]");
     const monster = monsters.find((m) => m.id === monsterId);
     if (!monster) return;
-
-    // 재료 변환
-    const materialName = monster.name + " 재료"; // 예: 슬라임 재료
+  
+    const grade = monster.grade;   // ★ 몬스터 등급 (COMMON, RARE 등)
+  
+    // 등급별 재료 관리
     let materials = JSON.parse(localStorage.getItem("materials") || "{}");
-    materials[materialName] = (materials[materialName] || 0) + 1;
-
+  
+    // 없으면 초기화
+    if (!materials[grade]) materials[grade] = 0;
+  
+    materials[grade] += 1; // ★ 등급 재료 1개 획득
+  
     // 저장
     localStorage.setItem("materials", JSON.stringify(materials));
-
+  
     // 몬스터 제거
     monsters = monsters.filter((m) => m.id !== monsterId);
     localStorage.setItem("myMonsters", JSON.stringify(monsters));
-
-    // 상태 업데이트
+  
     setMonsters(monsters);
-    alert(`${monster.name}을(를) 분해하여 ${materialName} 1개 획득!`);
+  
+    alert(`${monster.name} 분해 → ${grade} 재료 1개 획득!`);
   };
+  
 
   return (
     <div>
