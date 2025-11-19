@@ -306,38 +306,35 @@ const MATERIAL_IMAGES = {
   LEGEND: "/materials/material_legend.png",
 };
 
-
 function MaterialsPage() {
   const [materials, setMaterials] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // 항상 등급별 재료를 표시
+  // 항상 등급별 재료를 보여줌
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("materials") || "{}");
 
     const fullList = {};
     MATERIAL_GRADES.forEach((grade) => {
-      fullList[`${grade} 재료`] = saved[`${grade} 재료`] || 0;
+      fullList[grade] = saved[grade] || 0;
     });
 
     setMaterials(fullList);
   }, []);
 
-  const handleUseMaterial = async (materialName) => {
+  const handleUseMaterial = async (grade) => {
     if (loading) return;
 
-    if (!materials[materialName] || materials[materialName] < 10) {
+    if (!materials[grade] || materials[grade] < 10) {
       alert("재료가 10개 이상 필요합니다!");
       return;
     }
 
     setLoading(true);
 
-    const materialGrade = materialName.replace(" 재료", "");
-
     try {
       const res = await axios.get(
-        `https://monstercollector-production.up.railway.app/material/spawn?materialGrade=${materialGrade}`
+        `https://monstercollector-production.up.railway.app/material/spawn?materialGrade=${grade}`
       );
 
       const newMonster = res.data;
@@ -350,7 +347,7 @@ function MaterialsPage() {
       // 재료 차감
       const updated = {
         ...materials,
-        [materialName]: materials[materialName] - 10,
+        [grade]: materials[grade] - 10,
       };
 
       setMaterials(updated);
@@ -377,13 +374,12 @@ function MaterialsPage() {
           marginTop: "20px",
         }}
       >
-        {Object.entries(materials).map(([name, qty]) => {
-          const grade = name.replace(" 재료", "");
+        {Object.entries(materials).map(([grade, qty]) => {
           const img = MATERIAL_IMAGES[grade];
 
           return (
             <div
-              key={name}
+              key={grade}
               style={{
                 background: "#2b2b2b",
                 color: "white",
@@ -396,7 +392,7 @@ function MaterialsPage() {
               {/* 이미지 */}
               <img
                 src={img}
-                alt={name}
+                alt={grade}
                 style={{
                   width: "70px",
                   height: "70px",
@@ -406,7 +402,9 @@ function MaterialsPage() {
               />
 
               {/* 이름 */}
-              <div style={{ fontSize: "16px", fontWeight: "bold" }}>{name}</div>
+              <div style={{ fontSize: "16px", fontWeight: "bold" }}>
+                {grade} 재료
+              </div>
 
               {/* 개수 */}
               <div style={{ margin: "8px 0 12px 0" }}>{qty}개</div>
@@ -414,9 +412,9 @@ function MaterialsPage() {
               {/* 버튼 */}
               <button
                 disabled={loading || qty < 10}
-                onClick={() => handleUseMaterial(name)}
+                onClick={() => handleUseMaterial(grade)}
                 style={{
-                 padding: "8px 14px",
+                  padding: "8px 14px",
                   borderRadius: "8px",
                   border: "none",
                   cursor: qty < 10 ? "not-allowed" : "pointer",
