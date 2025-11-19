@@ -300,10 +300,10 @@ function MonsterBook() {
 const MATERIAL_GRADES = ["COMMON", "RARE", "EPIC", "LEGEND"];
 
 const MATERIAL_IMAGES = {
-  COMMON: "/img/material_common.png",
-  RARE: "/img/material_rare.png",
-  EPIC: "/img/material_epic.png",
-  LEGEND: "/img/material_legend.png",
+  COMMON: "/materials/material_common.png",
+  RARE: "/materials/material_rare.png",
+  EPIC: "/materials/material_epic.png",
+  LEGEND: "/materials/material_legend.png",
 };
 
 
