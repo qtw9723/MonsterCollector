@@ -296,17 +296,6 @@ function MaterialsPage() {
   const [materials, setMaterials] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const monsterImages = {
-    "슬라임": "/monsters/slime.png",
-    "고블린": "/monsters/goblin.png",
-    "박쥐": "/monsters/bat.png",
-    "스켈레톤": "/monsters/skeleton.png",
-    "늑대": "/monsters/wolf.png",
-    "미믹": "/monsters/mimic.png",
-    "리치": "/monsters/lich.png",
-    "드래곤": "/monsters/dragon.png",
-  };
-
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("materials") || "{}");
     setMaterials(saved);
@@ -319,17 +308,15 @@ function MaterialsPage() {
     }
 
     setLoading(true);
-    const gradeMap = {
-      "NORMAL 재료": "NORMAL",
-      "RARE 재료": "RARE",
-      "EPIC 재료": "EPIC",
-      "LEGENDARY 재료": "LEGENDARY"
-    };
-    const materialGrade = gradeMap[materialName];
+
+    // materialName은 "EPIC 재료" 같은 형태
+    const materialGrade = materialName.replace(" 재료", "");
 
     try {
-      // 백엔드 호출
-      const res = await axios.get(`http://localhost:8080/material/spawn?materialGrade=${materialGrade}`);
+      const res = await axios.get(
+        `https://monstercollector-production.up.railway.app/material/spawn?materialGrade=${materialGrade}`
+      );
+
       const newMonster = res.data;
 
       // 몬스터 저장
@@ -340,6 +327,7 @@ function MaterialsPage() {
       // 재료 차감
       const newMaterials = { ...materials };
       newMaterials[materialName] -= 10;
+
       setMaterials(newMaterials);
       localStorage.setItem("materials", JSON.stringify(newMaterials));
 
@@ -361,7 +349,7 @@ function MaterialsPage() {
         <ul>
           {Object.entries(materials).map(([name, qty]) => (
             <li key={name}>
-              {name}: {qty} 
+              {name}: {qty}
               <button disabled={loading} onClick={() => handleUseMaterial(name)}>
                 재료 사용 (10개)
               </button>
@@ -372,6 +360,7 @@ function MaterialsPage() {
     </div>
   );
 }
+
 
 
 export default App;

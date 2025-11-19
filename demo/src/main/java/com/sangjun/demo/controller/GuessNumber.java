@@ -26,6 +26,14 @@ public class GuessNumber {
         )
     );
 
+    /* ------------------------ 등급 변환(재료 소환용) ------------------------ */
+    private static final Map<MonsterGrade, MonsterGrade> MATERIAL_UPGRADE_MAP = Map.of(
+        MonsterGrade.NORMAL, MonsterGrade.RARE,
+        MonsterGrade.RARE, MonsterGrade.EPIC,
+        MonsterGrade.EPIC, MonsterGrade.LEGENDARY,
+        MonsterGrade.LEGENDARY, MonsterGrade.LEGENDARY
+    );
+
     /* ------------------------ BASE → TARGET 확률 ------------------------ */
     private static final Map<MonsterGrade, Integer> BASE_RATE = Map.of(
         MonsterGrade.NORMAL, 5,
@@ -43,6 +51,7 @@ public class GuessNumber {
 
     private static final int MAX_TRIES = 15;
     private static final int FORCE_NORMAL_TRY = 10;
+
 
     /* ------------------------ 동적 확률 계산 ------------------------ */
     private Map<MonsterGrade, Double> getDynamicRate(int tryCount) {
@@ -82,7 +91,8 @@ public class GuessNumber {
         return normalized;
     }
 
-    /* ------------------------ 등급 선택 ------------------------ */
+
+    /* ------------------------ 등급 랜덤 선택 ------------------------ */
     private MonsterGrade pickGrade(int tryCount) {
         Map<MonsterGrade, Double> rate = getDynamicRate(tryCount);
 
@@ -96,10 +106,14 @@ public class GuessNumber {
         return MonsterGrade.NORMAL;
     }
 
+    private Monster getRandomMonsterByGrade(MonsterGrade grade) {
+        List<Monster> list = MONSTER_POOL.get(grade);
+        return list.get(new Random().nextInt(list.size()));
+    }
+
     private Monster getRandomMonster(int tryCount) {
         MonsterGrade g = pickGrade(tryCount);
-        List<Monster> list = MONSTER_POOL.get(g);
-        return list.get(new Random().nextInt(list.size()));
+        return getRandomMonsterByGrade(g);
     }
 
     /* ------------------------ 숫자 게임 ------------------------ */
@@ -112,7 +126,7 @@ public class GuessNumber {
         tryCount++;
 
         if (tryCount > MAX_TRIES) {
-            response.put("message", "10번 실패! 게임 오버!");
+            response.put("message", "15번 실패! 게임 오버!");
             tryCount = 0;
             targetNumber = new Random().nextInt(100) + 1;
             return response;
@@ -135,6 +149,20 @@ public class GuessNumber {
             return response;
         }
     }
+
+    /* ------------------------ 재료로 상위 등급 몬스터 소환 ------------------------ */
+    @GetMapping("/material/spawn")
+    public Monster spawnByMaterial(@RequestParam("materialGrade") String materialGrade) {
+
+        MonsterGrade baseGrade = MonsterGrade.valueOf(materialGrade.toUpperCase());
+
+        // 다음 등급 결정
+        MonsterGrade nextGrade = MATERIAL_UPGRADE_MAP.getOrDefault(baseGrade, MonsterGrade.NORMAL);
+
+        // 해당 등급에서 랜덤 몬스터 반환
+        return getRandomMonsterByGrade(nextGrade);
+    }
+
 
     /* ------------------------ 현재 확률 조회 ------------------------ */
     @GetMapping("/rate")
