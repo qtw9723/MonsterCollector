@@ -97,36 +97,40 @@ function Home() {
 /* ---------------------------------------------------------------- */
 /* 숫자 맞추기 게임 */
 /* ---------------------------------------------------------------- */
+
 function GuessGame() {
   const navigate = useNavigate();
   const [number, setNumber] = useState("");
   const [message, setMessage] = useState("");
-  const [attempts, setAttempts] = useState(0);
-  const [rates, setRates] = useState({});
+  const [attempts, setAttempts] = useState(0); // 시도 횟수
+  const [rates, setRates] = useState({}); // 서버 확률
 
-  // 🔥 서버에서 확률 가져오기
+  /* -------------------- 현재 확률 서버에서 받아오기 -------------------- */
   useEffect(() => {
     axios
-      .get("https://monstercollector-production.up.railway.app/rate")
+      .get(
+        `https://monstercollector-production.up.railway.app/rate?tryCount=${attempts}`
+      )
       .then((res) => setRates(res.data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("❌ 확률 조회 실패:", err));
   }, [attempts]);
 
-  // 🔥 localStorage 에 몬스터 저장
+  /* -------------------- 몬스터 localStorage 저장 -------------------- */
   const saveMonsterLocal = (monster) => {
     let monsters = localStorage.getItem("myMonsters");
     monsters = monsters ? JSON.parse(monsters) : [];
-    // id 추가
-    const monsterWithId = { ...monster, id: Date.now() + Math.random() };
 
-    monsters.push(monsterWithId);
+    monsters.push({ ...monster, id: Date.now() + Math.random() });
+
     localStorage.setItem("myMonsters", JSON.stringify(monsters));
   };
 
-  // 🔥 서버로 숫자 맞추기 요청
+  /* -------------------- 숫자 맞추기 요청 -------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setAttempts(attempts + 1);
+
+    // ⚠ attempts 비동기 → 함수형 업데이트 사용
+    setAttempts((prev) => prev + 1);
 
     try {
       const response = await axios.get(
@@ -136,14 +140,14 @@ function GuessGame() {
       const result = response.data;
       setMessage(result.message);
 
-      // 틀렸을 때 input 흔들기
+      // ❌ 틀렸을 때 input 흔들기
       if (result.message.includes("너무")) {
         const inputEl = document.querySelector("input[type='number']");
         inputEl.classList.add("shake");
         setTimeout(() => inputEl.classList.remove("shake"), 300);
       }
 
-      // 🔥 몬스터 획득 시 localStorage에 저장
+      // 🎉 몬스터 획득 시
       if (result.monster) {
         saveMonsterLocal(result.monster);
 
@@ -151,12 +155,12 @@ function GuessGame() {
         popup.className = "popup";
         popup.innerText = `🎉 ${result.monster.name} (${result.monster.grade}) 획득!`;
         document.body.appendChild(popup);
-        setTimeout(() => document.body.removeChild(popup), 1500);
 
+        setTimeout(() => document.body.removeChild(popup), 1500);
         setTimeout(() => navigate("/monsters"), 1000);
       }
     } catch (err) {
-      console.error("요청 실패", err);
+      console.error("❌ 요청 실패:", err);
     }
   };
 
@@ -179,18 +183,17 @@ function GuessGame() {
       <p>{message}</p>
       <p>시도 횟수: {attempts}</p>
 
-      {/* 확률 UI */}
+      {/* ----------- 확률 표시 UI ----------- */}
       <div>
         <h3>📊 현재 확률</h3>
-        <p>Normal: {rates.NORMAL?.toFixed(1)}%</p>
-        <p>Rare: {rates.RARE?.toFixed(1)}%</p>
-        <p>Epic: {rates.EPIC?.toFixed(1)}%</p>
-        <p>Legendary: {rates.LEGENDARY?.toFixed(1)}%</p>
+        <p>Normal: {rates.NORMAL?.toFixed(2)}%</p>
+        <p>Rare: {rates.RARE?.toFixed(2)}%</p>
+        <p>Epic: {rates.EPIC?.toFixed(2)}%</p>
+        <p>Legendary: {rates.LEGENDARY?.toFixed(2)}%</p>
       </div>
     </div>
   );
 } //GuessGame
-
 
 
 export default App;
