@@ -1,7 +1,6 @@
-// CardGamePage.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "../style/CardPopup.css"; // 팝업 애니메이션용 CSS
+import "../style/CardPopup.css"; // 팝업/카드 애니메이션 CSS
 
 export default function CardGamePage() {
   const [cards, setCards] = useState([]);
@@ -10,7 +9,6 @@ export default function CardGamePage() {
   const maxOpen = 3;
   const [rewardMonster, setRewardMonster] = useState(null);
 
-  // 게임 시작
   const startGame = async () => {
     try {
       const res = await axios.get(
@@ -25,14 +23,12 @@ export default function CardGamePage() {
     }
   };
 
-  // 로컬 도감 저장
   const saveMonsterLocal = (monster) => {
     const monsters = JSON.parse(localStorage.getItem("myMonsters") || "[]");
     monsters.push({ ...monster, id: Date.now() + Math.random() });
     localStorage.setItem("myMonsters", JSON.stringify(monsters));
   };
 
-  // 카드 뒤집기
   const flipCard = async (index) => {
     if (openedCount >= maxOpen || cards[index] !== "?") return;
 
@@ -42,7 +38,7 @@ export default function CardGamePage() {
       );
 
       const newCards = [...cards];
-      newCards[index] = res.data.cards[index]; // 해당 카드만 오픈
+      newCards[index] = res.data.cards[index];
       setCards(newCards);
 
       const newScore = score + res.data.cards[index];
@@ -51,7 +47,6 @@ export default function CardGamePage() {
       const newOpened = openedCount + 1;
       setOpenedCount(newOpened);
 
-      // 최대 오픈 완료 → 몬스터 뽑기
       if (newOpened === maxOpen) {
         const rewardRes = await axios.get(
           `https://monstercollector-production.up.railway.app/card/draw?score=${newScore}`
@@ -60,12 +55,9 @@ export default function CardGamePage() {
         if (rewardRes.data) {
           const monster = rewardRes.data;
 
-          // 로컬 저장
           saveMonsterLocal(monster);
 
-          // 팝업 표시
           setRewardMonster(monster);
-
           setTimeout(() => setRewardMonster(null), 2000);
         }
       }
@@ -79,7 +71,7 @@ export default function CardGamePage() {
   }, []);
 
   return (
-    <div style={{ textAlign: "center" }}>
+    <div style={{ textAlign: "center", background: "#111", minHeight: "100vh", color: "#fff", padding: "20px 0" }}>
       <h1>카드 점수 게임</h1>
       <p>최대 {maxOpen}장 선택 가능</p>
       <p>현재 점수: {score}</p>
@@ -91,26 +83,26 @@ export default function CardGamePage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(6, 70px)",
-          gap: "10px",
+          gridTemplateColumns: "repeat(6, 80px)",
+          gap: "12px",
           justifyContent: "center",
           marginTop: "20px",
+          perspective: "1000px", // 3D 효과
         }}
       >
         {cards.map((card, idx) => (
-          <div
-            key={idx}
-            onClick={() => flipCard(idx)}
-            className={`card-box ${card !== "?" ? "flipped" : ""}`}
-          >
-            {card}
+          <div key={idx} className="card-container" onClick={() => flipCard(idx)}>
+            <div className={`card-inner ${card !== "?" ? "flipped" : ""}`}>
+              <div className="card-front">?</div>
+              <div className="card-back">{card}</div>
+            </div>
           </div>
         ))}
       </div>
 
       <button
         onClick={startGame}
-        style={{ marginTop: "30px", padding: "10px 20px", fontSize: "16px" }}
+        style={{ marginTop: "30px", padding: "10px 20px", fontSize: "16px", cursor: "pointer" }}
       >
         다시 시작
       </button>
