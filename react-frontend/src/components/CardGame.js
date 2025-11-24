@@ -25,24 +25,28 @@ export default function CardGamePage() {
   // 카드 뒤집기
   const flipCard = async (index) => {
     if (openedCount >= maxOpen || cards[index] !== "?") return;
-
+  
     try {
       const res = await axios.get(
         `https://monstercollector-production.up.railway.app/card/flip?index=${index}`
       );
       const newCards = res.data.cards;
+      const newScore = res.data.score;
+  
       setCards(newCards);
-      setScore(res.data.score);
-        setOpenedCount(openedCount + 1);
-        if (openedCount == 3) {
-            // eslint-disable-next-line no-template-curly-in-string
-            alert('최종 점수는 ${score}점입니다.');
-        }//if
+      setScore(newScore);
+  
+      const newOpenedCount = openedCount + 1;
+      setOpenedCount(newOpenedCount);
+  
+      if (newOpenedCount === 3) {
+        alert(`최종 점수는 ${newScore}점입니다.`);
+      }
     } catch (err) {
       console.error(err);
     }
   };
-
+  
   useEffect(() => {
     startGame();
   }, []);
