@@ -34,7 +34,7 @@ export default function CardGamePage() {
       setCards(newCards);
       setScore(res.data.score);
         setOpenedCount(openedCount + 1);
-        if (openedCount = 3) {
+        if (openedCount == 3) {
             alert("최종 점수는 "+{score}+"점입니다.");
         }//if
     } catch (err) {
