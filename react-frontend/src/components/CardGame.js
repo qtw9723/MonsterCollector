@@ -14,7 +14,7 @@ export default function CardGamePage() {
       const res = await axios.get(
         "https://monstercollector-production.up.railway.app/card/start"
       );
-      setCards(res.data.cards); // ["?", "?", ...]
+      setCards(res.data.cards);
       setScore(res.data.score);
       setOpenedCount(0);
     } catch (err) {
@@ -25,28 +25,29 @@ export default function CardGamePage() {
   // 카드 뒤집기
   const flipCard = async (index) => {
     if (openedCount >= maxOpen || cards[index] !== "?") return;
-  
+
     try {
       const res = await axios.get(
         `https://monstercollector-production.up.railway.app/card/flip?index=${index}`
       );
+
       const newCards = res.data.cards;
       const newScore = res.data.score;
-  
+
       setCards(newCards);
       setScore(newScore);
-  
+
       const newOpenedCount = openedCount + 1;
       setOpenedCount(newOpenedCount);
-  
-      if (newOpenedCount === 3) {
+
+      if (newOpenedCount === maxOpen) {
         alert(`최종 점수는 ${newScore}점입니다.`);
       }
     } catch (err) {
       console.error(err);
     }
   };
-  
+
   useEffect(() => {
     startGame();
   }, []);
@@ -60,11 +61,13 @@ export default function CardGamePage() {
         도전 횟수 : {openedCount}/{maxOpen}
       </p>
 
+      {/* 카드 6×6 그리드 */}
       <div
         style={{
-          display: "flex",
+          display: "grid",
+          gridTemplateColumns: "repeat(6, 70px)",
           justifyContent: "center",
-          gap: "10px",
+          gap: "12px",
           marginTop: "20px",
         }}
       >
@@ -73,20 +76,21 @@ export default function CardGamePage() {
             key={idx}
             onClick={() => flipCard(idx)}
             style={{
-              width: "60px",
-              height: "80px",
-              background: card === "?" ? "#555" : "#4caf50",
+              width: "70px",
+              height: "90px",
+              background: card === "?" ? "#333" : "#4caf50",
               color: "white",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "20px",
+              fontSize: "22px",
               cursor:
                 card === "?" && openedCount < maxOpen
                   ? "pointer"
                   : "not-allowed",
-              borderRadius: "8px",
+              borderRadius: "10px",
               userSelect: "none",
+              fontWeight: "bold",
             }}
           >
             {card}
@@ -96,7 +100,12 @@ export default function CardGamePage() {
 
       <button
         onClick={startGame}
-        style={{ marginTop: "30px", padding: "10px 20px", fontSize: "16px" }}
+        style={{
+          marginTop: "30px",
+          padding: "10px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+        }}
       >
         다시 시작
       </button>
