@@ -10,44 +10,48 @@ import org.springframework.web.bind.annotation.*;
 public class CardGame {
 
     private List<Integer> deck = new ArrayList<>();
+    private Set<Integer> flipped = new HashSet<>();
     private int score = 0;
 
     @GetMapping("/start")
     public Map<String, Object> startGame() {
         deck.clear();
+        flipped.clear();
         score = 0;
 
-        // 카드 1~10 랜덤 숫자 생성
         Random rand = new Random();
-        for (int i = 0; i < 10; i++) {
-            deck.add(rand.nextInt(10) + 1); // 1~10
+        for (int i = 0; i < 6; i++) {
+            deck.add(rand.nextInt(10) + 1); // 1~10 점수
         }
 
-        List<String> masked = deck.stream().map(d -> "?").collect(Collectors.toList());
+        List<String> masked = new ArrayList<>();
+        for (int i = 0; i < deck.size(); i++) masked.add("?");
 
         return Map.of(
             "cards", masked,
-            "message", "게임 시작! 카드를 선택하여 점수를 모으세요.",
             "score", score
         );
     }
 
     @GetMapping("/flip")
     public Map<String, Object> flipCard(@RequestParam int index) {
-        if (index < 0 || index >= deck.size()) {
-            return Map.of("message", "잘못된 카드 선택", "score", score);
+        if (index < 0 || index >= deck.size() || flipped.contains(index)) {
+            return Map.of("message", "잘못된 선택 또는 이미 오픈됨", "score", score);
         }
 
         int value = deck.get(index);
         score += value;
+        flipped.add(index);
 
-        // 카드 뒤집기 처리
-        List<String> current = deck.stream()
-                                   .map(d -> d == value ? String.valueOf(d) : "?")
-                                   .collect(Collectors.toList());
+        List<String> current = new ArrayList<>();
+        for (int i = 0; i < deck.size(); i++) {
+            if (flipped.contains(i)) current.add(String.valueOf(deck.get(i)));
+            else current.add("?");
+        }
 
         return Map.of(
-            "opened", value,
+            "openedIndex", index,
+            "openedValue", value,
             "cards", current,
             "score", score,
             "message", value + " 점 획득!"
