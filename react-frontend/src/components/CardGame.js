@@ -8,10 +8,14 @@ function CardScoreGame() {
 
   const startGame = async () => {
     try {
-      const res = await axios.get("https://monstercollector-production.up.railway.app/card/start");
+      const res = await axios.get(
+        "https://monstercollector-production.up.railway.app/card/start"
+      );
+      const serverCards = res.data.cards || []; // 안전하게 fallback
+      setCards(serverCards);
       setCards(res.data.cards);
-      setScore(res.data.score);
-      setMessage(res.data.message);
+      setScore(res.data.score || 0);
+      setMessage(res.data.message || "");
     } catch (err) {
       console.error(err);
     }
@@ -19,10 +23,14 @@ function CardScoreGame() {
 
   const flipCard = async (index) => {
     try {
-      const res = await axios.get(`https://monstercollector-production.up.railway.app/card/flip?index=${index}`);
+      const res = await axios.get(
+        `https://monstercollector-production.up.railway.app/card/flip?index=${index}`
+      );
+      const serverCards = res.data.cards || [];
+      setCards(serverCards);
       setCards(res.data.cards);
-      setScore(res.data.score);
-      setMessage(res.data.message);
+      setScore(res.data.score || 0);
+      setMessage(res.data.message || "");
     } catch (err) {
       console.error(err);
     }
@@ -36,7 +44,7 @@ function CardScoreGame() {
       </button>
 
       <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
-        {cards.map((c, idx) => (
+        {(cards || []).map((c, idx) => (
           <div
             key={idx}
             onClick={() => flipCard(idx)}
