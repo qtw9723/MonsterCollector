@@ -14,7 +14,7 @@ function CardGame() {
   useEffect(() => {
     const startGame = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/card/start");
+        const res = await axios.get("https://monstercollector-production.up.railway.app/card/start");
         setCards(res.data.cards || []);
         setFlipped(Array(res.data.cards.length).fill(false));
         setScore(0);
