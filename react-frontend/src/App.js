@@ -109,7 +109,8 @@ function GuessGame() {
   useEffect(() => {
     axios
       .get(
-        `https://monstercollector-production.up.railway.app/rate?tryCount=${attempts}`
+        // `https://monstercollector-production.up.railway.app/rate?tryCount=${attempts}`
+        `http://192.168.2.50:8080/rate?tryCount=${attempts}`
       )
       .then((res) => setRates(res.data))
       .catch((err) => console.error("❌ 확률 조회 실패:", err));
