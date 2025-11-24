@@ -11,7 +11,9 @@ export default function CardGamePage() {
   // 게임 시작
   const startGame = async () => {
     try {
-      const res = await axios.get("https://monstercollector-production.up.railway.app/card/start");
+      const res = await axios.get(
+        "https://monstercollector-production.up.railway.app/card/start"
+      );
       setCards(res.data.cards); // ["?", "?", ...]
       setScore(res.data.score);
       setOpenedCount(0);
@@ -25,7 +27,9 @@ export default function CardGamePage() {
     if (openedCount >= maxOpen || cards[index] !== "?") return;
 
     try {
-      const res = await axios.get(`https://monstercollector-production.up.railway.app/card/flip?index=${index}`);
+      const res = await axios.get(
+        `https://monstercollector-production.up.railway.app/card/flip?index=${index}`
+      );
       const newCards = res.data.cards;
       setCards(newCards);
       setScore(res.data.score);
@@ -44,6 +48,9 @@ export default function CardGamePage() {
       <h1>카드 점수 게임</h1>
       <p>최대 {maxOpen}장 카드까지 선택 가능</p>
       <p>점수: {score}</p>
+      <p>
+        도전 횟수 : {openedCount}/{maxOpen}
+      </p>
 
       <div
         style={{
@@ -66,7 +73,10 @@ export default function CardGamePage() {
               alignItems: "center",
               justifyContent: "center",
               fontSize: "20px",
-              cursor: card === "?" && openedCount < maxOpen ? "pointer" : "not-allowed",
+              cursor:
+                card === "?" && openedCount < maxOpen
+                  ? "pointer"
+                  : "not-allowed",
               borderRadius: "8px",
               userSelect: "none",
             }}
