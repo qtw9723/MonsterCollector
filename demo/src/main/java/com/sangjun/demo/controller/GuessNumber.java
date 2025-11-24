@@ -35,14 +35,14 @@ public class GuessNumber {
     );
 
     /* ------------------------ BASE → TARGET 확률 ------------------------ */
-    private static final Map<MonsterGrade, Integer> BASE_RATE = Map.of(
+    public static final Map<MonsterGrade, Integer> BASE_RATE = Map.of(
         MonsterGrade.NORMAL, 5,
         MonsterGrade.RARE, 10,
         MonsterGrade.EPIC, 60,
         MonsterGrade.LEGENDARY, 25
     );
 
-    private static final Map<MonsterGrade, Integer> TARGET_RATE = Map.of(
+    public static final Map<MonsterGrade, Integer> TARGET_RATE = Map.of(
         MonsterGrade.NORMAL, 70,
         MonsterGrade.RARE, 25,
         MonsterGrade.EPIC, 4,
