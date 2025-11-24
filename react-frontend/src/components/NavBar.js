@@ -10,6 +10,7 @@ function NavBar({ gold }) {
         <ul style={{ display: "flex", gap: "15px", listStyle: "none", margin: 0, padding: 0 }}>
           <li><Link to="/" style={{ color: "white", textDecoration: "none" }}>홈</Link></li>
           <li><Link to="/game" style={{ color: "white", textDecoration: "none" }}>숫자 맞추기</Link></li>
+          <li><Link to="/cardgmae" style={{ color: "white", textDecoration: "none" }}>카드 뒤집기</Link></li>
           <li><Link to="/monsters" style={{ color: "white", textDecoration: "none" }}>내 몬스터</Link></li>
           <li><Link to="/materials" style={{ color: "white", textDecoration: "none" }}>재료사용</Link></li>
           <li><Link to="/DungeonPage" style={{ color: "white", textDecoration: "none" }}>던전</Link></li>

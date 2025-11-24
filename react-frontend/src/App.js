@@ -11,6 +11,7 @@ import NavBar from "./components/NavBar";
 import MonsterBook from "./components/MonsterBook";
 import MaterialsPage from "./components/MaterialPage";
 import DungeonPage from "./components/DungeonPage";
+import CardGame from "./components/CardGame";
 
 function App() {
   const [gold, setGold] = useState(() => {
@@ -47,6 +48,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/game" element={<GuessGame />} />
+          <Route path="/cardgmae" element={<CardGame />} />
           <Route path="/monsters" element={<MonsterBook />} />
           <Route path="/materials" element={<MaterialsPage />} />
           <Route path="/DungeonPage" element={<DungeonPage gold={gold} setGold={setGold} />} />
