@@ -20,8 +20,8 @@ public class CardGame {
         score = 0;
 
         Random rand = new Random();
-        for (int i = 0; i < 6; i++) {
-            deck.add(rand.nextInt(10) + 1); // 1~10 점수
+        for (int i = 0; i < 36; i++) {
+            deck.add(rand.nextInt(100) + 1); // 1~10 점수
         }
 
         List<String> masked = new ArrayList<>();
