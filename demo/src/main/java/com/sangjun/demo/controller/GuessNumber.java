@@ -178,6 +178,17 @@ public class GuessNumber {
         myMonsters.add(monster);
     }
 
+    
+    /* ------------------------ 카드 게임 점수 기반 몬스터 뽑기 ------------------------ */
+    @GetMapping("/card/draw")
+    public Monster drawByCardScore(@RequestParam("score") int score) {
+
+        // score = tryCount처럼 사용
+        int effectiveTryCount = Math.min(score, MAX_TRIES);
+
+        return getRandomMonster(effectiveTryCount);
+    }
+
     @GetMapping("/myMonsters")
     public List<Monster> getMyMonsters() {
         return myMonsters;
