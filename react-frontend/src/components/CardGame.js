@@ -11,7 +11,7 @@ export default function CardGamePage() {
   // 게임 시작
   const startGame = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/card/start");
+      const res = await axios.get("https://monstercollector-production.up.railway.app/card/start");
       setCards(res.data.cards); // ["?", "?", ...]
       setScore(res.data.score);
       setOpenedCount(0);
@@ -25,7 +25,7 @@ export default function CardGamePage() {
     if (openedCount >= maxOpen || cards[index] !== "?") return;
 
     try {
-      const res = await axios.get(`http://localhost:8080/card/flip?index=${index}`);
+      const res = await axios.get(`https://monstercollector-production.up.railway.app/card/flip?index=${index}`);
       const newCards = res.data.cards;
       setCards(newCards);
       setScore(res.data.score);
