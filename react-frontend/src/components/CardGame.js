@@ -1,15 +1,16 @@
+// CardGamePage.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "../style/CardPopup.css"; // 팝업 애니메이션용 CSS (아래 제공)
 
 export default function CardGamePage() {
   const [cards, setCards] = useState([]);
   const [score, setScore] = useState(0);
   const [openedCount, setOpenedCount] = useState(0);
-  const [drawnMonster, setDrawnMonster] = useState(null); // 뽑힌 몬스터 저장
+  const maxOpen = 3;
 
-  const maxOpen = 3; // 최대 오픈 횟수
+  const [rewardMonster, setRewardMonster] = useState(null); // 팝업 표시용
 
-  // 게임 시작
   const startGame = async () => {
     try {
       const res = await axios.get(
@@ -18,25 +19,20 @@ export default function CardGamePage() {
       setCards(res.data.cards);
       setScore(res.data.score);
       setOpenedCount(0);
-      setDrawnMonster(null); // 이전 몬스터 결과 초기화
+      setRewardMonster(null);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // 몬스터 뽑기 호출
-  const drawMonster = async (finalScore) => {
-    try {
-      const res = await axios.get(
-        `https://monstercollector-production.up.railway.app/card/draw?score=${finalScore}`
-      );
-      setDrawnMonster(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+  /* ---------------------- 몬스터 저장 ---------------------- */
+  const saveMonsterLocal = (monster) => {
+    let monsters = JSON.parse(localStorage.getItem("myMonsters") || "[]");
+    monsters.push({ ...monster, id: Date.now() + Math.random() });
+    localStorage.setItem("myMonsters", JSON.stringify(monsters));
   };
 
-  // 카드 뒤집기
+  /* ---------------------- 카드 뒤집기 ---------------------- */
   const flipCard = async (index) => {
     if (openedCount >= maxOpen || cards[index] !== "?") return;
 
@@ -51,13 +47,27 @@ export default function CardGamePage() {
       setCards(newCards);
       setScore(newScore);
 
-      const newOpenedCount = openedCount + 1;
-      setOpenedCount(newOpenedCount);
+      const newOpened = openedCount + 1;
+      setOpenedCount(newOpened);
 
-      // 3장 뒤집으면 → 몬스터 자동 뽑기
-      if (newOpenedCount === maxOpen) {
-        alert(`최종 점수는 ${newScore}점입니다.`);
-        drawMonster(newScore);
+      // 3장 오픈 완료 → 뽑기 실행
+      if (newOpened === maxOpen) {
+        const reward = await axios.get(
+          `https://monstercollector-production.up.railway.app/card/reward?score=${newScore}`
+        );
+
+        if (reward.data.monster) {
+          const monster = reward.data.monster;
+
+          // 도감 저장
+          saveMonsterLocal(monster);
+
+          // 팝업 표시
+          setRewardMonster(monster);
+
+          // 자동으로 사라지기
+          setTimeout(() => setRewardMonster(null), 2000);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -69,21 +79,20 @@ export default function CardGamePage() {
   }, []);
 
   return (
-    <div style={{ textAlign: "center", padding: 20 }}>
+    <div style={{ textAlign: "center" }}>
       <h1>카드 점수 게임</h1>
-
-      <p>최대 {maxOpen}장 카드까지 선택 가능</p>
+      <p>최대 {maxOpen}장 선택 가능</p>
       <p>현재 점수: {score}</p>
       <p>
         도전 횟수 : {openedCount}/{maxOpen}
       </p>
 
-      {/* 카드 그리드 */}
+      {/* 6 × 6 그리드 */}
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(6, 70px)",
-          gridGap: "10px",
+          gap: "10px",
           justifyContent: "center",
           marginTop: "20px",
         }}
@@ -92,23 +101,7 @@ export default function CardGamePage() {
           <div
             key={idx}
             onClick={() => flipCard(idx)}
-            style={{
-              width: "70px",
-              height: "90px",
-              background: card === "?" ? "#444" : "#4caf50",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "20px",
-              cursor:
-                card === "?" && openedCount < maxOpen
-                  ? "pointer"
-                  : "not-allowed",
-              borderRadius: "10px",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
-              transition: "transform 0.2s",
-            }}
+            className={`card-box ${card !== "?" ? "flipped" : ""}`}
           >
             {card}
           </div>
@@ -117,38 +110,18 @@ export default function CardGamePage() {
 
       <button
         onClick={startGame}
-        style={{
-          marginTop: "30px",
-          padding: "12px 25px",
-          fontSize: "16px",
-          borderRadius: "8px",
-        }}
+        style={{ marginTop: "30px", padding: "10px 20px", fontSize: "16px" }}
       >
         다시 시작
       </button>
 
-      {/* 뽑힌 몬스터 결과 UI */}
-      {drawnMonster && (
-        <div
-          style={{
-            marginTop: "30px",
-            padding: "20px",
-            background: "#222",
-            color: "white",
-            borderRadius: "15px",
-            width: "300px",
-            marginLeft: "auto",
-            marginRight: "auto",
-            boxShadow: "0 6px 15px rgba(0,0,0,0.5)",
-          }}
-        >
-          <h2>🎉 획득한 몬스터!</h2>
-
-          <p style={{ fontSize: "22px", fontWeight: "bold" }}>
-            {drawnMonster.name}
+      {/* 보상 팝업 */}
+      {rewardMonster && (
+        <div className="reward-popup">
+          <h2>🎉 몬스터 획득!</h2>
+          <p>
+            {rewardMonster.name} ({rewardMonster.grade})
           </p>
-          <p style={{ fontSize: "18px" }}>등급: {drawnMonster.grade}</p>
-          <p style={{ fontSize: "18px" }}>전투력: {drawnMonster.power}</p>
         </div>
       )}
     </div>

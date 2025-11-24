@@ -1,0 +1,61 @@
+
+.reward-popup {
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    background: rgba(50, 50, 50, 0.9);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 12px;
+    font-size: 22px;
+    text-align: center;
+    animation: popup-zoom 0.3s ease-out forwards,
+      popup-fade 0.3s ease-in 1.7s forwards;
+    z-index: 9999;
+    border: 2px solid gold;
+  }
+  
+  @keyframes popup-zoom {
+    from {
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 0;
+    }
+    to {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes popup-fade {
+    to {
+      opacity: 0;
+      transform: translate(-50%, -40%) scale(0.8);
+    }
+  }
+  
+  /* 카드 애니메이션 */
+  .card-box {
+    width: 70px;
+    height: 90px;
+    border-radius: 10px;
+    background: #555;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.3s, background 0.3s;
+  }
+  
+  .card-box:hover {
+    transform: scale(1.1);
+  }
+  
+  .card-box.flipped {
+    background: #4caf50;
+    transform: rotateY(180deg);
+  }
+  
