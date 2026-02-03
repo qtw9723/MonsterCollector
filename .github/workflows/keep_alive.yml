@@ -12,9 +12,9 @@ jobs:
       - name: Send First Ping
         run: |
           curl -X GET "${{ secrets.PROJECT_URL }}" \
-          -H "Authorization: Bearer ${{ secrets.API_KEY }}"
+          -H "Authorization: ${{ secrets.API_KEY }}"
           # 두 번째 요청 (추가된 부분)
       - name: Send Second Ping
         run: |
           curl -X GET "${{ secrets.PROJECT_URL_2 }}" \
-          -H "Authorization: Bearer ${{ secrets.API_KEY_2 }}"
+          -H "Authorization: ${{ secrets.API_KEY_2 }}"
