@@ -12,5 +12,4 @@ jobs:
       - name: Send Ping
         run: |
           curl -X GET "${{ secrets.PROJECT_URL }}" \
-          -H "apikey: ${{ secrets.API_KEY }}" \
           -H "Authorization: Bearer ${{ secrets.API_KEY }}"
