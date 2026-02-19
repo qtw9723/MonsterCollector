@@ -12,6 +12,7 @@ import MonsterBook from "./components/MonsterBook";
 import MaterialsPage from "./components/MaterialPage";
 import DungeonPage from "./components/DungeonPage";
 import CardGamePage from "./components/CardGame";
+import ApiTest from "./components/ApiTest";
 
 function App() {
   const [gold, setGold] = useState(() => {
@@ -48,6 +49,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/game" element={<GuessGame />} />
+          <Route path="/apitest" element={<ApiTest />} />
           <Route path="/cardgmae" element={<CardGamePage />} />
           <Route path="/monsters" element={<MonsterBook />} />
           <Route path="/materials" element={<MaterialsPage />} />
@@ -92,6 +94,13 @@ function Home() {
       >
         ▶ 게임 시작하기
       </button>
+
+       <button
+              onClick={() => navigate("/apitest")}
+              style={{ padding: "10px 20px", marginTop: "20px", fontSize: "18px" }}
+            >
+              ▶ api 테스트
+            </button>
     </div>
   );
 } //Home
