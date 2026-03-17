@@ -2,3 +2,23 @@
 /backend/target/
 /backend/.idea/
 /backend/*.iml
+
+# Unity
+unity/FaceMerge/Library/
+unity/FaceMerge/Temp/
+unity/FaceMerge/Logs/
+unity/FaceMerge/obj/
+unity/FaceMerge/Build/
+unity/FaceMerge/Builds/
+unity/FaceMerge/.vs/
+unity/FaceMerge/UserSettings/
+unity/FaceMerge/*.csproj
+unity/FaceMerge/*.sln
+
+# Unity meta files for ignored directories
+unity/FaceMerge/Library.meta
+unity/FaceMerge/Temp.meta
+
+# OS
+.DS_Store
+Thumbs.db

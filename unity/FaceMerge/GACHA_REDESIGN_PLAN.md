@@ -11,8 +11,8 @@
 - 기존 GDD의 S/A/B/C/D 표기 폐기
 
 ### 가챠 방식
-- 기존: 숫자 맞추기 미니게임 (tryCount 기반 확률 변동) → **폐기**
-- 변경: **단일 티켓 방식**
+- 기존: 숫자 맞추기 미니게임 (tryCount 기반 확률 변동) → **서브 콘텐츠로 유지**
+- 메인: **단일 티켓 방식** (신규 구현)
 
 ### 티켓
 - 단일 티켓 1종류
@@ -38,12 +38,12 @@
 
 | 파일 | 변경 내용 |
 |------|----------|
-| `Assets/Resources/Data/SUMMON_RATE.xml` | tryCount 10행 → 단일 행 (기본확률 + 천장값) |
-| `Assets/Script/Data/SummonRateModelData.cs` | tryCount 기반 → 싱글 설정 + pity 로직 |
+| `Assets/Resources/Data/SUMMON_RATE.xml` | 단일 행 추가 (기본확률 + 천장값) — 기존 tryCount 행 유지 |
+| `Assets/Script/Data/SummonRateModelData.cs` | 싱글 설정 + pity 로직 추가 — 기존 tryCount 로직 유지 |
 | `Assets/Script/Manager/GachaManager.cs` | **신규** — pity 카운터, PullOne(), Pull10(), 세이브/로드 |
 | `Assets/Script/Manager/GameManager.cs` | Init()에 GachaManager.LoadPity() 추가 |
-| `Assets/Script/UI/UIController/SummonController.cs` | 숫자맞추기 제거 → 1뽑/10뽑 버튼 로직 |
-| `Assets/Script/UI/UIRoot/SummonRoot.cs` | 숫자패드/추측버튼 제거 → 1뽑/10뽑 버튼 추가 |
+| `Assets/Script/UI/UIController/SummonController.cs` | **신규** 메인 가챠 씬 (1뽑/10뽑) — 기존 숫자맞추기 씬 별도 유지 |
+| `Assets/Script/UI/UIRoot/SummonRoot.cs` | **신규** 메인 가챠 UI (1뽑/10뽑 버튼) — 기존 UI 별도 유지 |
 
 ---
 
@@ -89,12 +89,12 @@ GachaSaveData (Serializable)
 
 ## 기존 코드 현황 (변경 전)
 
-### SummonController (현재)
+### SummonController (서브 콘텐츠 — 유지)
 - 1~100 숫자 맞추기
 - curTryCount 1~10 에 따라 확률 변동
 - 정답 맞추면 카드 획득
 
-### SUMMON_RATE.xml (현재)
+### SUMMON_RATE.xml (서브 콘텐츠 — 유지)
 - tryCount 1~10, 10행
 - tryCount 1: SSR 40, SR 60 (첫 시도 유리)
 - tryCount 10: N 70, R 25, SR 5 (많이 틀릴수록 불리)
