@@ -54,7 +54,7 @@ export async function getOneRanking(userId: string) {
 
   if (error) throw error;
 
-  const { data: lb, error: lbError } = await supabase
+  const { data: lb, error: lbError } = await adminSupabase
     .from("leaderboard")
     .select("rank")
     .eq("user_id", userId)
