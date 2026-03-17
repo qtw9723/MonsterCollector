@@ -22,6 +22,9 @@ supabase functions serve guess
 supabase functions deploy guess
 supabase functions deploy card
 supabase functions deploy rank
+
+# 전체 함수 배포
+supabase functions deploy
 ```
 
 ## 아키텍처

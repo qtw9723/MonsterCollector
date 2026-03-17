@@ -47,5 +47,33 @@ export async function getOneRanking(userId: string) {
     .single();
 
   if (error) throw error;
-  return data;
+
+  const { data: lb, error: lbError } = await supabase
+    .from("leaderboard")
+    .select("ranking")
+    .eq("user_id", userId)
+    .single();
+
+  return { ...data, ranking: lbError ? null : lb.ranking };
+}
+
+export async function updateLeaderboard() {
+  const { data, error } = await supabase
+    .from("rankings")
+    .select("user_id")
+    .order("score", { ascending: false });
+
+  if (error) throw error;
+
+  const rows = data.map((row: { user_id: string }, index: number) => ({
+    user_id: row.user_id,
+    ranking: index + 1,
+  }));
+
+  const { error: upsertError } = await supabase
+    .from("leaderboard")
+    .upsert(rows, { onConflict: "user_id" });
+
+  if (upsertError) throw upsertError;
+  return rows.length;
 }
