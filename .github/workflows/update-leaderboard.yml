@@ -1,0 +1,16 @@
+name: Update Leaderboard
+
+on:
+  schedule:
+    - cron: "0 15 * * *"  # UTC 15:00 = KST 자정 (00:00)
+  workflow_dispatch:        # 수동 실행 버튼
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call update-leaderboard function
+        run: |
+          curl -s -X POST \
+            "https://elqomxaemqiqalzhczfc.supabase.co/functions/v1/update-leaderboard" \
+            -w "\nHTTP Status: %{http_code}"
