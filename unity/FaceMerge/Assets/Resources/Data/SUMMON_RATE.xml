@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A: SSR 가중치
+  B: SR 가중치
+  C: R 가중치
+  D: N 가중치
+  E: SSR 천장 (하드 피티)
+  F: SR 소프트 피티 간격
+-->
+<Element>
+  <Row>
+    <A>2</A>
+    <B>13</B>
+    <C>35</C>
+    <D>50</D>
+    <E>80</E>
+    <F>20</F>
+  </Row>
+</Element>

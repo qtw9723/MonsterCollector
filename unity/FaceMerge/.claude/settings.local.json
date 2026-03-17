@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Windows\\\\Temp'' -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum | Select-Object @{N=''MB'';E={[math]::Round\\($_Sum/1MB,1\\)}}\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\\\Windows\\\\Temp\\\\delete_cache.ps1\")"
+    ]
+  }
+}
