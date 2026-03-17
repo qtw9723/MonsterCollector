@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class SummonRateModel
+public class NumberPadSummonRateModel
 {
-    Dictionary<int, SummonRateModelData> dictData;
+    Dictionary<int, NumberPadSummonRateModelData> dictData;
     private int maxTryCount;
 
     public void SetData()
@@ -13,13 +13,13 @@ public class SummonRateModel
         if (dictData != null)
             return;
 
-        dictData = new Dictionary<int, SummonRateModelData>();
-        var table = TableManager.Instance.GetTableData(TableName.SUMMON_RATE);
+        dictData = new Dictionary<int, NumberPadSummonRateModelData>();
+        var table = TableManager.Instance.GetTableData(TableName.NUMBER_PAD_SUMMON_RATE);
         var rowCount = table.GetRowCount();
 
         for(int i = 0; i < rowCount; ++i)
         {
-            var modelData = new SummonRateModelData();
+            var modelData = new NumberPadSummonRateModelData();
             modelData.SetData(i);
             dictData[modelData.tryCount] = modelData;
         }
@@ -27,7 +27,7 @@ public class SummonRateModel
         maxTryCount = dictData.Keys.Max();
     }
 
-    public SummonRateModelData GetSummonData(int tryCount)
+    public NumberPadSummonRateModelData GetSummonData(int tryCount)
     {
         SetData();
 
@@ -45,7 +45,7 @@ public class SummonRateModel
 }
 
 
-public class SummonRateModelData : IBaseModel
+public class NumberPadSummonRateModelData : IBaseModel
 {
     public int tryCount { get; private set; }
     public float ssrValue { get; private set; }
@@ -58,7 +58,7 @@ public class SummonRateModelData : IBaseModel
 
     public void SetData(int row)
     {
-        var table = TableManager.Instance.GetTableData(TableName.SUMMON_RATE);
+        var table = TableManager.Instance.GetTableData(TableName.NUMBER_PAD_SUMMON_RATE);
 
         tryCount = table.GetIntegerValue(row, eCol.A);
         ssrValue = table.GetIntegerValue(row, eCol.B);

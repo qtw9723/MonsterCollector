@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class ModelDataManager : MonoSingleton<ModelDataManager>
 {
-    public SummonRateModel summonRateModelContainer;
+    public NumberPadSummonRateModel numberPadSummonRateModelContainer;
     public CardModel cardModelContainer;
 
     public void Init()
     {
-        summonRateModelContainer = new SummonRateModel();
+        numberPadSummonRateModelContainer = new NumberPadSummonRateModel();
         cardModelContainer = new CardModel();
     }
 
     public void Dispose()
     {
-        summonRateModelContainer.Dispose();
+        numberPadSummonRateModelContainer.Dispose();
         cardModelContainer.Dispose();
     }
 }

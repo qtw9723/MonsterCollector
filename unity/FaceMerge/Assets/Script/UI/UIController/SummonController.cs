@@ -9,7 +9,7 @@ public class SummonController : UIController
     private UINumberPad uiNumberPad;
 
     private int curTryCount = 1;
-    private SummonRateModelData curSummonData;
+    private NumberPadSummonRateModelData curSummonData;
     private StringBuilder sb = new StringBuilder();
 
     private int minNum = 1;
@@ -48,7 +48,7 @@ public class SummonController : UIController
 
     protected override void UpdateUI()
     {
-        curSummonData = ModelDataManager.Instance.summonRateModelContainer.GetSummonData(curTryCount);
+        curSummonData = ModelDataManager.Instance.numberPadSummonRateModelContainer.GetSummonData(curTryCount);
         uiSummon.UpdateData(curSummonData);
 
         uiSummon.SetMagicImageFillAmount((10f - (float)curTryCount) / 9f);

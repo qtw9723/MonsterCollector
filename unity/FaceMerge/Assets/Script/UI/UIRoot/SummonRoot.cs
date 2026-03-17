@@ -24,7 +24,7 @@ public class SummonRoot : UIBaseRoot
 
     public UnityAction onGuessClick { get; set; }
 
-    private SummonRateModelData curData;
+    private NumberPadSummonRateModelData curData;
 
     public override void ExcuteOnce()
     {
@@ -43,7 +43,7 @@ public class SummonRoot : UIBaseRoot
         uiSliders[(int)SummonGrade.N - 1].Setup("Normal", nColor);
     }
 
-    public void UpdateData(SummonRateModelData data)
+    public void UpdateData(NumberPadSummonRateModelData data)
     {
         curData = data;
         UpdateUI();

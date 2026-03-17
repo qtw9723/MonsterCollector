@@ -12,7 +12,7 @@ public enum eCol
 
 public enum TableName
 {
-    SUMMON_RATE,
+    NUMBER_PAD_SUMMON_RATE,
     CARD_DATA,
 }
 
