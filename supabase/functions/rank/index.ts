@@ -1,4 +1,4 @@
-import { saveGameScore, getTopRankings, getOneRanking } from "./data.ts";
+import { saveGameScore, getTopRankings, getOneRanking, UserNotFoundError } from "./data.ts";
 
 Deno.serve(async (req) => {
   const { method } = req;
@@ -48,11 +48,21 @@ Deno.serve(async (req) => {
       const isSingleUser = userId && userId !== "rank";
 
       if (isSingleUser) {
-        const ranking = await getOneRanking(userId);
-        return new Response(JSON.stringify(ranking), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
+        try {
+          const ranking = await getOneRanking(userId);
+          return new Response(JSON.stringify(ranking), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (e) {
+          if (e instanceof UserNotFoundError) {
+            return new Response(JSON.stringify({ error: e.message }), {
+              status: 404,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+          throw e;
+        }
       }
 
       // /rank → Top 10 조회

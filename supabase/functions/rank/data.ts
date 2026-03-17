@@ -40,14 +40,24 @@ export async function getTopRankings() {
   return data;
 }
 
+export class UserNotFoundError extends Error {
+  constructor(userId: string) {
+    super(`해당 유저는 등록되지 않았습니다. (user_id: ${userId})`);
+    this.name = "UserNotFoundError";
+  }
+}
+
 export async function getOneRanking(userId: string) {
   const { data, error } = await supabase
     .from("rankings")
-    .select("*")
+    .select("user_id, nickname, score, level")
     .eq("user_id", userId)
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (error.code === "PGRST116") throw new UserNotFoundError(userId);
+    throw error;
+  }
 
   const { data: lb, error: lbError } = await supabase
     .from("leaderboard")

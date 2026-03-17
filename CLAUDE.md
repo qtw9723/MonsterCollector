@@ -50,7 +50,6 @@ guess/
 - 15회+: TARGET_RATE (NORMAL 70%, RARE 25%)
 
 ### DB 스키마
-
 **rankings** — 게임 점수 저장
 | 컬럼 | 설명 |
 |------|------|
