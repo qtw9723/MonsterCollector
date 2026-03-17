@@ -5,11 +5,6 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// leaderboard 수정용 admin 클라이언트 (서비스 롤 키 사용)
-const adminSupabase = createClient(
-  SUPABASE_URL,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-);
 
 // 1. 점수 등록 (Create)
 // data.ts
@@ -54,7 +49,7 @@ export async function getOneRanking(userId: string) {
 
   if (error) throw error;
 
-  const { data: lb, error: lbError } = await adminSupabase
+  const { data: lb, error: lbError } = await supabase
     .from("leaderboard")
     .select("rank")
     .eq("user_id", userId)
@@ -77,14 +72,14 @@ export async function updateLeaderboard() {
     rank: index + 1,
   }));
 
-  const { error: deleteError } = await adminSupabase
+  const { error: deleteError } = await supabase
     .from("leaderboard")
     .delete()
     .neq("user_id", "");
 
   if (deleteError) throw deleteError;
 
-  const { error: insertError } = await adminSupabase
+  const { error: insertError } = await supabase
     .from("leaderboard")
     .insert(rows);
 
