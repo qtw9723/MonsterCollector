@@ -1,9 +1,15 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const SUPABASE_URL = "https://elqomxaemqiqalzhczfc.supabase.co"; // 포트 확인 필요
+const SUPABASE_URL = "https://elqomxaemqiqalzhczfc.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVscW9teGFlbXFpcWFsemhjemZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMjk2MDQsImV4cCI6MjA4NDYwNTYwNH0.0he5PJ_4W9pEUR1Vi8LbnhUwsOsb-8vh2wVXUh11R0k";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// leaderboard 수정용 admin 클라이언트 (서비스 롤 키 사용)
+const adminSupabase = createClient(
+  SUPABASE_URL,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+);
 
 // 1. 점수 등록 (Create)
 // data.ts
@@ -50,16 +56,17 @@ export async function getOneRanking(userId: string) {
 
   const { data: lb, error: lbError } = await supabase
     .from("leaderboard")
-    .select("ranking")
+    .select("rank")
     .eq("user_id", userId)
     .single();
 
-  return { ...data, ranking: lbError ? null : lb.ranking };
+  return { ...data, ranking: lbError ? null : lb.rank };
 }
 
 export async function updateLeaderboard() {
   const { data, error } = await supabase
     .from("rankings")
+
     .select("user_id")
     .order("score", { ascending: false });
 
@@ -67,13 +74,20 @@ export async function updateLeaderboard() {
 
   const rows = data.map((row: { user_id: string }, index: number) => ({
     user_id: row.user_id,
-    ranking: index + 1,
+    rank: index + 1,
   }));
 
-  const { error: upsertError } = await supabase
+  const { error: deleteError } = await adminSupabase
     .from("leaderboard")
-    .upsert(rows, { onConflict: "user_id" });
+    .delete()
+    .neq("user_id", "");
 
-  if (upsertError) throw upsertError;
+  if (deleteError) throw deleteError;
+
+  const { error: insertError } = await adminSupabase
+    .from("leaderboard")
+    .insert(rows);
+
+  if (insertError) throw insertError;
   return rows.length;
 }
