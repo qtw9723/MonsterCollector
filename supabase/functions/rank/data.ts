@@ -38,3 +38,14 @@ export async function getTopRankings() {
   if (error) throw error;
   return data;
 }
+
+export async function getOneRanking(userId: string) {
+  const { data, error } = await supabase
+    .from("rankings")
+    .select("*")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}

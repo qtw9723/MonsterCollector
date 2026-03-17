@@ -1,4 +1,4 @@
-import { saveGameScore, getTopRankings } from "./data.ts";
+import { saveGameScore, getTopRankings, getOneRanking } from "./data.ts";
 
 Deno.serve(async (req) => {
   const { method } = req;
@@ -42,6 +42,20 @@ Deno.serve(async (req) => {
   // 2. 랭킹 조회 API (GET)
   if (method === "GET") {
     try {
+      // /rank/{user_id} → 단일 사용자 조회
+      const segments = pathname.split("/").filter(Boolean);
+      const userId = segments[segments.length - 1];
+      const isSingleUser = userId && userId !== "rank";
+
+      if (isSingleUser) {
+        const ranking = await getOneRanking(userId);
+        return new Response(JSON.stringify(ranking), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // /rank → Top 10 조회
       const rankings = await getTopRankings();
       return new Response(JSON.stringify(rankings), {
         status: 200,
