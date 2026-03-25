@@ -200,7 +200,7 @@ POST /exchange
 ### 아이템 구매
 
 ```
-POST /exchange/{listing_id}/buy
+POST /exchange/listing/{listing_id}/buy
 ```
 
 **Request Body**
@@ -236,7 +236,7 @@ POST /exchange/{listing_id}/buy
 ### 등록 취소
 
 ```
-POST /exchange/{listing_id}/cancel
+POST /exchange/listing/{listing_id}/cancel
 ```
 
 **Request Body**
@@ -325,11 +325,11 @@ POST /exchange/{listing_id}/cancel
     - 성공 시 로컬에서 해당 아이템을 비활성화 또는 삭제 처리
 
 2. **아이템 구매 시**
-    - `POST /exchange/{listing_id}/buy` 호출
+    - `POST /exchange/listing/{listing_id}/buy` 호출
     - 성공 시 응답으로 받은 아이템 정보를 로컬 인벤토리에 추가
 
 3. **등록 취소 시**
-    - `POST /exchange/{listing_id}/cancel` 호출
+    - `POST /exchange/listing/{listing_id}/cancel` 호출
     - 성공 시 로컬에서 해당 아이템을 다시 활성화
 
 4. **게임 시작 시 동기화**
