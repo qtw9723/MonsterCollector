@@ -341,9 +341,9 @@ POST /exchange/listing/{listing_id}/cancel
     - `POST /exchange/listing/{listing_id}/cancel` 호출
     - 성공 시 로컬에서 해당 아이템을 다시 활성화
 
-4. **게임 시작 시 동기화**
-    - 본인의 active listings 조회 후 로컬 아이템 상태와 동기화
-    - sold/cancelled 된 항목 처리
+4. **거래소 방문 시 동기화**
+    - 거래소 진입 시 `GET /exchange/my/{user_id}` 호출
+    - sold 처리된 항목 확인 → 판매 완료 알림 표시
 
 5. **화폐 예치 UI**
     - 예치 조건(점수/레벨 등) 확정 후 해당 데이터를 함께 전송하도록 구현
@@ -380,6 +380,15 @@ POST /exchange/listing/{listing_id}/cancel
 ### 4. 가격 범위 제한
 - 아이템 등록 시 최소/최대 가격 설정 여부
 - 등급별로 다른 범위를 적용할지 여부
+
+### 6. 거래 알림 방식
+거래가 완료됐을 때 판매자에게 알림을 줄지 여부 및 방식 결정 필요.
+
+| 방식 | 설명 | 비고 |
+|------|------|------|
+| 폴링 | 거래소 방문 시 sold 항목 확인 | 구현 단순, 실시간 아님 |
+| Supabase Realtime | WebSocket으로 즉시 푸시 | Unity에 공식 SDK 없어 직접 구현 필요 |
+| FCM | 앱 꺼져도 수신 가능한 푸시 알림 | Firebase 연동 필요, 구현 복잡 |
 
 ### 5. 거래 수수료
 - 아이템 거래 시 수수료 차감 여부 및 비율
