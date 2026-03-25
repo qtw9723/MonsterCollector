@@ -95,6 +95,38 @@ GET /exchange/my/{user_id}
 
 ---
 
+### 화폐 예치
+```
+POST /exchange/wallet/deposit
+```
+
+**Request Body**
+
+| 필드 | 설명 |
+|------|------|
+| `user_id` | 예치 요청자 user_id |
+| `amount` | 예치할 금액 |
+
+**서버 처리**
+1. user_id members 검증
+2. wallets 잔액 증가 (없으면 신규 생성)
+
+---
+
+### 잔액 조회
+```
+GET /exchange/wallet/{user_id}
+```
+
+**Response**
+
+| 필드 | 설명 |
+|------|------|
+| `user_id` | 유저 ID |
+| `balance` | 현재 잔액 |
+
+---
+
 ### 아이템 등록
 ```
 POST /exchange
