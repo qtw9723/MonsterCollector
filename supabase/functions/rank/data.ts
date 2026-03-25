@@ -69,30 +69,8 @@ export async function getOneRanking(userId: string) {
 }
 
 export async function updateLeaderboard() {
-  const { data, error } = await supabase
-    .from("rankings")
-
-    .select("user_id")
-    .order("score", { ascending: false });
+  const { data, error } = await supabase.rpc("refresh_leaderboard");
 
   if (error) throw error;
-
-  const rows = data.map((row: { user_id: string }, index: number) => ({
-    user_id: row.user_id,
-    rank: index + 1,
-  }));
-
-  const { error: deleteError } = await supabase
-    .from("leaderboard")
-    .delete()
-    .neq("user_id", "");
-
-  if (deleteError) throw deleteError;
-
-  const { error: insertError } = await supabase
-    .from("leaderboard")
-    .insert(rows);
-
-  if (insertError) throw insertError;
-  return rows.length;
+  return data as number;
 }

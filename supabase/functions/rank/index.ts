@@ -8,6 +8,11 @@ Deno.serve(async (req) => {
   // 디버깅을 위해 서버 로그에 출력 (supabase functions serve/logs 에서 확인 가능)
   console.log(`${method} 요청 발생: ${pathname}`);
 
+  // 0. UptimeRobot 등 헬스체크용 HEAD 요청 처리
+  if (method === "HEAD") {
+    return new Response(null, { status: 200 });
+  }
+
   // 1. 점수 저장 API (POST)
   // 경로가 /rank 이거나 함수 루트(/)일 때 모두 허용
   if (method === "POST") {
