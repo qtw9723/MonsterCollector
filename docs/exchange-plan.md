@@ -22,33 +22,85 @@ MonsterCollector의 거래소는 등록된 회원 간 아이템을 사고팔 수
 ### item_master — 아이템 마스터 데이터
 
 아이템의 종류 정의. 클라이언트의 아이템 ID와 동일한 값을 PK로 사용.
+필터용 속성을 보유하며, 필터/상세 조회 시에만 JOIN 대상이 됨.
 
 | 컬럼            | 타입   | 설명                      |
 |---------------|------|-------------------------|
 | `item_id`     | TEXT | PK, 클라이언트 아이템 ID와 일치    |
 | `name`        | TEXT | 아이템 이름                  |
 | `grade`       | TEXT | 등급 (N / R / SR / SSR 등) |
+| `type`        | TEXT | 아이템 종류 (weapon / armor / accessory 등) |
+| `job_class`   | TEXT | 착용 가능 직업 (warrior / mage / all 등) |
+| `element`     | TEXT | 속성 (fire / water / none 등) |
 | `description` | TEXT | 아이템 설명 (optional)       |
 
-> 거래소에 등록 가능한 아이템 종류를 사전에 정의해두는 테이블.
-> 클라이언트의 CARD_DATA.xml 등과 ID를 맞춰 관리.
+> 필터 속성이 추가되더라도 listings 구조 변경 없이 이 테이블에만 컬럼 추가.
 
 ---
 
-### listings — 거래소 등록 목록
+### listings — 거래 원장
 
-| 컬럼                 | 타입          | 설명                              |
-|--------------------|-------------|---------------------------------|
-| `listing_id`       | UUID        | PK                              |
-| `seller_id`        | TEXT        | FK → members.user_id            |
-| `item_id`          | TEXT        | FK → item_master.item_id        |
-| `item_instance_id` | TEXT        | 로컬 아이템 고유 ID (GUID), 이중 등록 방지용  |
-| `price`            | INTEGER     | 등록 가격                           |
-| `status`           | TEXT        | `active` / `sold` / `cancelled` |
-| `created_at`       | TIMESTAMPTZ | 등록 시각                           |
+모든 거래 이력의 source of truth. 조회용이 아닌 기록/원장 목적.
 
-> `item_instance_id`는 클라이언트에서 아이템 생성 시 부여한 GUID.
-> active 상태의 listing에 동일 GUID가 존재하면 이중 등록 차단.
+| 컬럼                 | 타입          | 설명                                                    |
+|--------------------|-------------|-------------------------------------------------------|
+| `listing_id`       | UUID        | PK                                                    |
+| `seller_id`        | TEXT        | FK → members.user_id                                  |
+| `item_id`          | TEXT        | FK → item_master.item_id                              |
+| `item_instance_id` | TEXT        | 로컬 아이템 고유 ID (GUID), 이중 등록 방지용                        |
+| `item_name`        | TEXT        | 아이템 이름 (등록 시점 반정규화, 기본 표시용)                           |
+| `item_grade`       | TEXT        | 아이템 등급 (등록 시점 반정규화, 기본 표시용)                           |
+| `price`            | INTEGER     | 등록 가격                                                 |
+| `status`           | TEXT        | `active` / `cancelled` / `retrieved` / `sold`         |
+| `expired_at`       | TIMESTAMPTZ | 등록 만료 시각 (created_at + 3일)                            |
+| `sold_at`          | TIMESTAMPTZ | 판매 완료 시각                                              |
+| `retrieved_at`     | TIMESTAMPTZ | 판매자 회수 완료 시각                                          |
+| `created_at`       | TIMESTAMPTZ | 등록 시각                                                 |
+
+> `item_name`, `item_grade`는 등록 시점에 item_master에서 읽어 저장 (반정규화).
+> item_master가 수정되어도 listings 기록은 등록 당시 값을 유지.
+
+---
+
+### exchange_cache — 거래소 조회/거래용 테이블
+
+기본 목록 조회 및 거래 처리의 메인 테이블. JOIN 없이 단독 조회 가능.
+listings의 active 데이터를 기반으로 유지되며, 거래/취소/만료 시 직접 업데이트.
+
+| 컬럼                 | 타입          | 설명                             |
+|--------------------|-------------|--------------------------------|
+| `listing_id`       | UUID        | PK, FK → listings.listing_id   |
+| `seller_id`        | TEXT        | FK → members.user_id           |
+| `item_id`          | TEXT        | item_master 참조용 (필터 JOIN 키)    |
+| `item_instance_id` | TEXT        | 로컬 아이템 GUID                    |
+| `item_name`        | TEXT        | 반정규화 (기본 목록 표시용, JOIN 불필요)     |
+| `item_grade`       | TEXT        | 반정규화 (기본 목록 표시용, JOIN 불필요)     |
+| `price`            | INTEGER     | 등록 가격                          |
+| `status`           | TEXT        | `active` / `cancelled` / `sold` |
+| `expired_at`       | TIMESTAMPTZ | 등록 만료 시각                       |
+| `created_at`       | TIMESTAMPTZ | 등록 시각                          |
+
+> **기본 목록 조회**: exchange_cache 단독 조회 (JOIN 없음)
+> **필터 조회**: exchange_cache JOIN item_master (필터 적용 시에만)
+> **구매/취소/만료**: exchange_cache status 직접 업데이트 (실시간)
+> **10분 주기 sync**: item_master 속성 변경 시 반영 (실질적으로 거의 동작 안 함)
+
+---
+
+### listings_archive — 거래 이력 아카이브
+
+완료된 거래 기록 보관. listings에서 이관된 데이터.
+
+| 컬럼 | 설명 |
+|------|------|
+| listings와 동일한 구조 | 이관 시점에 그대로 복사 |
+
+**이관 조건:**
+
+| 상태 | 이관 조건 |
+|------|---------|
+| `sold` | 거래 완료 후 14일 경과 시 자동 이관 |
+| `retrieved` | 다음 cron 실행 시 즉시 이관 |
 
 ---
 
@@ -193,7 +245,9 @@ POST /exchange
 
 1. seller_id members 검증
 2. item_instance_id 이중 등록 여부 확인
-3. listing 생성 (status: active)
+3. item_master에서 item_name, item_grade 조회
+4. listings INSERT (status: active, expired_at = now + 3일)
+5. exchange_cache INSERT (동일 데이터)
 
 ---
 
@@ -213,9 +267,9 @@ POST /exchange/listing/{listing_id}/buy
 
 1. buyer_id members 검증
 2. 본인 listing 구매 시도 차단
-3. listing status가 active인지 확인
+3. exchange_cache status가 active인지 확인
 4. 구매자 잔액 확인
-5. 구매자 잔액 차감 → 판매자 잔액 증가 → listing status: sold → transactions 기록
+5. 구매자 잔액 차감 → 판매자 잔액 증가 → listings/exchange_cache status: sold → transactions 기록
 
 > 모든 처리는 Postgres RPC로 원자적으로 실행하여 중간 실패 방지.
 
@@ -275,10 +329,52 @@ POST /exchange/listing/{listing_id}/cancel
 
 ---
 
+## 등록 수명 및 상태 머신
+
+### 등록 수명
+- 아이템 등록 후 **3일** 이내 거래 없으면 자동 `cancelled` 처리
+- `expired_at = created_at + 3일`로 저장, cron이 만료 여부 확인
+
+### 상태 머신
+
+```
+active (등록 중, exchange_cache 표시)
+  │
+  ├─ 구매 발생 ──────────────────→ sold (14일 후 archive 이관)
+  │
+  └─ 3일 만료 or 수동 취소 ──────→ cancelled (판매자 회수 대기)
+                                      │
+                                      └─ 판매자 회수 ──→ retrieved
+                                                          │
+                                                          └─ 다음 cron → archive 이관
+```
+
+### 상태별 가시성
+
+| 상태 | exchange_cache | 판매자에게 표시 | 구매자에게 표시 |
+|------|--------------|------------|------------|
+| `active` | ✅ | ✅ | ✅ |
+| `cancelled` | ❌ | ✅ (회수 필요) | ❌ |
+| `retrieved` | ❌ | ❌ | ❌ |
+| `sold` | ❌ | ✅ (14일간 내역) | ✅ (14일간 내역) |
+
+---
+
+## 자동화 (cron)
+
+기존 GitHub Actions 패턴 활용. 3개의 cron 작업 필요.
+
+| 작업 | 주기 | 처리 내용 |
+|------|------|---------|
+| 만료 처리 | 주기적 (미결정) | `active` 중 `expired_at` 지난 항목 → `cancelled`, exchange_cache 삭제 |
+| 거래 내역 이관 | 주기적 (미결정) | `sold` 14일 경과 → listings_archive 이관 후 listings 삭제 |
+| 회수 완료 이관 | 주기적 (미결정) | `retrieved` → listings_archive 이관 후 listings 삭제 |
+
+---
+
 ## 추가 고려사항
 
 - **거래 수수료**: 거래 금액의 일정 % 차감 여부 결정 필요
-- **등록 기간 만료**: 일정 기간 미거래 시 자동 cancelled 처리 (cron 활용 가능)
 - **등급별 최저가**: 희귀 아이템의 비정상적 저가 등록 방지
 - **화폐 획득 방법**: 게임 점수 연동, 판매 수익 순환 등 결정 필요 (예치 조건 섹션 참고)
 
