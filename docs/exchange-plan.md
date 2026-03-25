@@ -219,6 +219,18 @@ POST /exchange/{listing_id}/buy
 
 > 모든 처리는 Postgres RPC로 원자적으로 실행하여 중간 실패 방지.
 
+**Response `200`**
+
+| 필드 | 설명 |
+|------|------|
+| `tx_id` | 거래 ID |
+| `item_id` | 구매한 아이템 종류 ID |
+| `item_instance_id` | 구매한 아이템의 로컬 GUID (클라이언트 인벤토리 추가에 사용) |
+| `item_name` | 아이템 이름 |
+| `item_grade` | 아이템 등급 |
+| `price` | 실제 결제된 금액 |
+| `remaining_balance` | 구매 후 남은 거래소 화폐 잔액 |
+
 ---
 
 ### 등록 취소
