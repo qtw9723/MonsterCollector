@@ -24,9 +24,9 @@ Deno.serve(async (req) => {
           }
 
           // 필수 칼럼 체크 (user_id, nickname, score)
-          if (!incomingData.user_id || !incomingData.nickname || incomingData.score === undefined) {
+          if (!incomingData.user_id || incomingData.score === undefined) {
             return new Response(JSON.stringify({
-              error: "필수 데이터(user_id, nickname, score)가 부족합니다."
+              error: "필수 데이터(user_id, score)가 부족합니다."
             }), { status: 400 });
           }
 
