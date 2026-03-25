@@ -251,6 +251,15 @@ POST /exchange/listing/{listing_id}/cancel
 2. status가 active인 경우만 취소 허용
 3. listing status: cancelled
 
+**Response `200`**
+
+| 필드 | 설명 |
+|------|------|
+| `item_id` | 아이템 종류 ID |
+| `item_instance_id` | 아이템의 로컬 GUID (클라이언트 인벤토리 복구에 사용) |
+| `item_name` | 아이템 이름 |
+| `item_grade` | 아이템 등급 |
+
 ---
 
 ## 보안 고려사항
