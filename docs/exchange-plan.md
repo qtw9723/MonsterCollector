@@ -286,6 +286,37 @@ POST /exchange/listing/{listing_id}/buy
 
 ---
 
+### 아이템 회수
+
+판매자가 `cancelled` 상태의 아이템을 인벤토리로 되돌릴 때 호출.
+
+```
+POST /exchange/listing/{listing_id}/retrieve
+```
+
+**Request Body**
+
+| 필드 | 설명 |
+|------|------|
+| `user_id` | 회수 요청자 (본인만 가능) |
+
+**서버 처리**
+
+1. listing의 seller_id와 요청자 일치 확인
+2. status가 cancelled인 경우만 허용
+3. listings status: retrieved, retrieved_at 기록
+
+**Response `200`**
+
+| 필드 | 설명 |
+|------|------|
+| `item_id` | 아이템 종류 ID |
+| `item_instance_id` | 아이템의 로컬 GUID (클라이언트 인벤토리 복구에 사용) |
+| `item_name` | 아이템 이름 |
+| `item_grade` | 아이템 등급 |
+
+---
+
 ### 등록 취소
 
 ```
@@ -302,7 +333,8 @@ POST /exchange/listing/{listing_id}/cancel
 
 1. listing의 seller_id와 요청자 일치 확인
 2. status가 active인 경우만 취소 허용
-3. listing status: cancelled
+3. listings status: cancelled
+4. exchange_cache에서 해당 listing 삭제
 
 **Response `200`**
 
@@ -361,21 +393,16 @@ active (등록 중, exchange_cache 표시)
 
 ## 자동화 (cron)
 
-기존 GitHub Actions 패턴 활용. 3개의 cron 작업 필요.
+기존 GitHub Actions 패턴 활용. 4개의 cron 작업 필요. 실행 주기는 논의 필요 사항 7번 참고.
 
-| 작업 | 주기 | 처리 내용 |
-|------|------|---------|
-| 만료 처리 | 주기적 (미결정) | `active` 중 `expired_at` 지난 항목 → `cancelled`, exchange_cache 삭제 |
-| 거래 내역 이관 | 주기적 (미결정) | `sold` 14일 경과 → listings_archive 이관 후 listings 삭제 |
-| 회수 완료 이관 | 주기적 (미결정) | `retrieved` → listings_archive 이관 후 listings 삭제 |
+| 작업 | 처리 내용 |
+|------|---------|
+| 만료 처리 | `active` 중 `expired_at` 지난 항목 → `cancelled`, exchange_cache 삭제 |
+| 거래 내역 이관 | `sold` 14일 경과 → listings_archive 이관 후 listings 삭제 |
+| 회수 완료 이관 | `retrieved` → listings_archive 이관 후 listings 삭제 |
+| exchange_cache sync | item_master 속성 변경 시 exchange_cache 반영 (10분 주기) |
 
 ---
-
-## 추가 고려사항
-
-- **거래 수수료**: 거래 금액의 일정 % 차감 여부 결정 필요
-- **등급별 최저가**: 희귀 아이템의 비정상적 저가 등록 방지
-- **화폐 획득 방법**: 게임 점수 연동, 판매 수익 순환 등 결정 필요 (예치 조건 섹션 참고)
 
 ---
 
@@ -438,19 +465,24 @@ active (등록 중, exchange_cache 표시)
 
 4. **거래소 방문 시 동기화**
     - 거래소 진입 시 `GET /exchange/my/{user_id}` 호출
-    - sold 처리된 항목 확인 → 판매 완료 알림 표시
+    - `sold` 항목 확인 → 판매 완료 알림 표시
+    - `cancelled` 항목 확인 → 회수 필요 목록 표시
 
-5. **화폐 예치 UI**
-    - 예치 조건(점수/레벨 등) 확정 후 해당 데이터를 함께 전송하도록 구현
+5. **아이템 회수 시**
+    - `POST /exchange/listing/{listing_id}/retrieve` 호출
+    - 성공 시 응답으로 받은 아이템 정보를 로컬 인벤토리에 추가
+
+6. **화폐 예치 UI**
+    - 예치 조건 확정 후 해당 데이터를 함께 전송하도록 구현 (논의 필요 사항 1번 참고)
     - `POST /exchange/wallet/deposit` 호출
     - 예치 가능 금액 및 현재 잔액 표시
 
-6. **화폐 환전 UI**
+7. **화폐 환전 UI**
     - 환전할 금액 및 받을 재화 종류 선택 UI 구현
     - `POST /exchange/wallet/withdraw` 호출
     - 성공 시 응답으로 받은 재화/재료를 로컬에 반영
 
-7. **잔액 표시**
+8. **잔액 표시**
     - `GET /exchange/wallet/{user_id}` 연동하여 현재 예치 화폐 잔액 UI에 표시
 
 ---
