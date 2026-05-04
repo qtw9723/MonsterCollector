@@ -14,7 +14,7 @@ public class GameManager : MonoSingleton<GameManager>
     public void Awake()
     {
         Init();
-        ControlManager.Instance.ChangeScene<MainLobbyController>();
+        ControlManager.Instance.ChangeScene<WorldController>();
         Debug.Log(Application.persistentDataPath);
     }
 
